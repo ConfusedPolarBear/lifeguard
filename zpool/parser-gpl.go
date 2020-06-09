@@ -4,11 +4,7 @@
 
 // Structs originally from https://github.com/skeltonn/zfs-manager
 
-package main
-
-import (
-	"strings"
-)
+package zpool
 
 // Struct for "zpool status"
 type PoolStatus struct {
