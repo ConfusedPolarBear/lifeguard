@@ -123,6 +123,8 @@ func ParseZpoolStatus(raw string) *Pool {
 			for i := 5; i < len(info); i++ {
 				status += info[i] + " "
 			}
+
+			status = strings.TrimSpace(status)
 		}
 
 		pool.Containers = append(pool.Containers, &Container {
