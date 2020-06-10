@@ -6,7 +6,7 @@
 
 package zpool
 
-// Struct for "zpool status"
+// Pool wide status
 type Pool struct {
 	Name       string
 	State      string
@@ -19,7 +19,7 @@ type Pool struct {
 	Raw        string
 }
 
-// Struct for within "zpool status", the config section
+// VDEV or VDEV member status
 type Container struct {
 	Name   string
 	State  string
