@@ -6,7 +6,7 @@ package main
 import (
 	"testing"
 
-	"github.com/ConfusedPolarBear/lifeguard/zpool"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/google/go-cmp/cmp"
 )
