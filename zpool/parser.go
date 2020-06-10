@@ -65,14 +65,16 @@ func ParseZpoolStatus(raw string) *Pool {
 	poolMap["config"] = config
 	poolMap["raw"] = raw
 
-	pool = &Pool{Name: poolMap["pool"]}
-	pool.State = poolMap["state"]
-	pool.Status = useDefault(poolMap["status"], "OK")
-	pool.Action = useDefault(poolMap["action"], "No action needed")
-	pool.See = poolMap["see"]
-	pool.Scan = poolMap["scan"]
-	pool.Errors = poolMap["errors"]
-	pool.Raw = poolMap["raw"]
+	pool = &Pool {
+		Name:   poolMap["pool"],
+		State:  poolMap["state"],
+		Status: useDefault(poolMap["status"], "OK"),
+		Action: useDefault(poolMap["action"], "No action needed"),
+		See:    poolMap["see"],
+		Scan:   poolMap["scan"],
+		Errors: poolMap["errors"],
+		Raw:    poolMap["raw"],
+	}
 
 	if os.Getenv("DEBUG") == "1" {
 		log.Printf("==================== Processed zpool output =======================\n")
@@ -123,7 +125,7 @@ func ParseZpoolStatus(raw string) *Pool {
 			}
 		}
 
-		pool.Containers = append(pool.Containers, &Container{
+		pool.Containers = append(pool.Containers, &Container {
 			Name:   name,
 			State:  state,
 			Read:   read,
