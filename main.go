@@ -7,7 +7,7 @@ import (
 	"log"
 	"fmt"
 
-	"github.com/ConfusedPolarBear/zfs-manager/zpool"
+	"github.com/ConfusedPolarBear/lifeguard/zpool"
 )
 
 func main() {
