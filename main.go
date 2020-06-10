@@ -8,11 +8,9 @@ import (
 )
 
 func main() {
-	log.Println("Parsing all pools on system")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	pools := zpool.ParseAllPools()
+	pools := string(zpool.GetPools())
 
-	for index, pool := range pools {
-		fmt.Printf("Pool %d: %#v", index, pool)
-	}
+	fmt.Println(pools)
 }

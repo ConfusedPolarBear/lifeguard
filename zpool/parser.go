@@ -4,7 +4,7 @@
 package zpool
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"log"
 	"os"
 	"os/exec"
@@ -15,8 +15,8 @@ import (
 var cmdListPools  = []string { "/sbin/zpool", "list", "-H", "-o", "name" }
 var cmdPoolStatus = []string { "/sbin/zpool", "status" }
 
-func ParseZpoolStatus(raw string) *PoolStatus {
-	var pool *PoolStatus
+func ParseZpoolStatus(raw string) *Pool {
+	var pool *Pool
 
 	inConfig := false
 	config := ""
@@ -65,7 +65,7 @@ func ParseZpoolStatus(raw string) *PoolStatus {
 	poolMap["config"] = config
 	poolMap["raw"] = raw
 
-	pool = &PoolStatus{Name: poolMap["pool"]}
+	pool = &Pool{Name: poolMap["pool"]}
 	pool.State = poolMap["state"]
 	pool.Status = useDefault(poolMap["status"], "OK")
 	pool.Action = useDefault(poolMap["action"], "No action needed")
@@ -85,27 +85,53 @@ func ParseZpoolStatus(raw string) *PoolStatus {
 
 	// The first line is the header and should be skipped
 	lines[0] = ""
+	initialLevel := -1
+
 	for _, line := range lines {
-		if line == "" {
+		// TODO: replace with map?
+		info := strings.Fields(line)
+		name := ""
+		state := ""
+		read := ""
+		write := ""
+		cksum := ""
+		status := ""
+		level := 0
+
+		if len(info) == 0 {
 			continue
 		}
 
-		info := strings.Fields(line)
-		status := "none"
+		name = info[0]
+		if initialLevel == -1 {
+			initialLevel = countSpaces(line)
+		}
+
+		if len(info) > 1 {
+			// cache entries only have one field, all others have (at least) 5
+			state = info[1]
+			read = info[2]
+			write = info[3]
+			cksum = info[4]
+			level = (countSpaces(line) - initialLevel) / 2
+		}
+
 		if len(info) > 5 {
-			status = ""
+			// additional status information is available for this vdev member
 			for i := 5; i < len(info); i++ {
 				status += info[i] + " "
 			}
 		}
 
-		pool.Containers = append(pool.Containers, &ContainerStatus{
-			Name:   info[0],
-			State:  info[1],
-			Read:   info[2],
-			Write:  info[3],
-			Cksum:  info[4],
-			Status: status})
+		pool.Containers = append(pool.Containers, &Container{
+			Name:   name,
+			State:  state,
+			Read:   read,
+			Write:  write,
+			Cksum:  cksum,
+			Status: status,
+			Level:  level,
+		})
 	}
 
 	return pool
@@ -115,8 +141,8 @@ func ListZpools() []string {
 	return strings.Split(getOutput(cmdListPools), "\n")
 }
 
-func ParseAllPools() []*PoolStatus {
-	var pools []*PoolStatus
+func ParseAllPools() []*Pool {
+	var pools []*Pool
 	names := ListZpools()
 
 	if len(names) > 0 && names[0] == "no pools available" {
@@ -137,6 +163,17 @@ func ParseAllPools() []*PoolStatus {
 	}
 
 	return pools
+}
+
+func GetPools() []byte {
+	pools := ParseAllPools()
+	encoded, err := json.Marshal(pools)
+
+	if err != nil {
+		log.Fatalf("Unable to marshal pool to JSON: %s", err)
+	}
+
+	return encoded
 }
 
 func getOutput(raw []string) string {
@@ -186,3 +223,16 @@ func Sanitize(raw string) string {
 	return re.ReplaceAllString(raw, "")
 }
 
+// Utility function to count the number of leading spaces in str.
+func countSpaces(str string) int {
+	count := 0
+	for  _, current := range str {
+		if current == ' ' {
+			count++
+		} else {
+			break
+		}
+	}
+
+	return count
+}
