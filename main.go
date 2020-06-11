@@ -5,15 +5,12 @@ package main
 
 import (
 	"log"
-	"fmt"
 
-	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/api"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	pools := string(zpool.GetPools())
-
-	fmt.Println(pools)
+	api.Setup()
 }

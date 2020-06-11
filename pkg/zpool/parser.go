@@ -76,7 +76,7 @@ func ParseZpoolStatus(raw string) *Pool {
 		Raw:    poolMap["raw"],
 	}
 
-	if os.Getenv("DEBUG") == "1" {
+	if os.Getenv("LIFEGUARD_DEBUG") == "1" {
 		log.Printf("==================== Processed zpool output =======================\n")
 		for key, value := range poolMap {
 			log.Printf("'%s' => '%s'\n", key, value)
