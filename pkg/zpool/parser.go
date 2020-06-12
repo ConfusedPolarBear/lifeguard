@@ -87,58 +87,62 @@ func ParseZpoolStatus(raw string) *Pool {
 
 	// The first line is the header and should be skipped
 	lines[0] = ""
-	initialLevel := -1
-
 	for _, line := range lines {
-		// TODO: replace with map?
-		info := strings.Fields(line)
-		name := ""
-		state := ""
-		read := ""
-		write := ""
-		cksum := ""
-		status := ""
-		level := 0
+		container := parseContainer(line)
 
-		if len(info) == 0 {
-			continue
+		if container.Level != -1 {
+			pool.Containers = append(pool.Containers, &container)
 		}
-
-		name = info[0]
-		if initialLevel == -1 {
-			initialLevel = countSpaces(line)
-		}
-
-		if len(info) > 1 {
-			// cache entries only have one field, all others have (at least) 5
-			state = info[1]
-			read = info[2]
-			write = info[3]
-			cksum = info[4]
-			level = (countSpaces(line) - initialLevel) / 2
-		}
-
-		if len(info) > 5 {
-			// additional status information is available for this vdev member
-			for i := 5; i < len(info); i++ {
-				status += info[i] + " "
-			}
-
-			status = strings.TrimSpace(status)
-		}
-
-		pool.Containers = append(pool.Containers, &Container {
-			Name:   name,
-			State:  state,
-			Read:   read,
-			Write:  write,
-			Cksum:  cksum,
-			Status: status,
-			Level:  level,
-		})
 	}
 
 	return pool
+}
+
+func parseContainer(line string) Container {
+	info := strings.Fields(line)
+	name := ""
+	state := ""
+	read := ""
+	write := ""
+	cksum := ""
+	status := ""
+	level := 0
+
+	if len(info) == 0 {
+		return Container {
+			Level: -1,
+		}
+	}
+
+	name = info[0]
+
+	if len(info) > 1 {
+		// cache entries only have one field, all others have (at least) 5
+		state = info[1]
+		read = info[2]
+		write = info[3]
+		cksum = info[4]
+		level = countSpaces(line) / 2
+	}
+
+	if len(info) > 5 {
+		// additional status information is available for this vdev member
+		for i := 5; i < len(info); i++ {
+			status += info[i] + " "
+		}
+
+		status = strings.TrimSpace(status)
+	}
+
+	return Container {
+		Name:   name,
+		State:  state,
+		Read:   read,
+		Write:  write,
+		Cksum:  cksum,
+		Status: status,
+		Level:  level,
+	}
 }
 
 func ListZpools() []string {
@@ -233,6 +237,9 @@ func countSpaces(str string) int {
 	for  _, current := range str {
 		if current == ' ' {
 			count++
+		} else if current == 9 {
+			// ignore tabs
+			continue
 		} else {
 			break
 		}

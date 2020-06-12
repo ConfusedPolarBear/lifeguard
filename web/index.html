@@ -84,13 +84,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				}
 			  },
 			  filters: {
-			  	periodNewlines (raw) {
+			  	periodNewlines(raw) {
 					return raw.replace(/\n/g, ". ")
 				},
-			  	stripNewlines (raw) {
+			  	stripNewlines(raw) {
 					return raw.replace(/\n/g, " ")
 				},
-			  	convertNewlines (raw) {
+			  	convertNewlines(raw) {
 					// TODO: implement
 					return raw.replace(/\n/g, "<br>")
 				}

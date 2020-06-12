@@ -38,11 +38,11 @@ func TestHealthy(t *testing.T) {
   scan: scrub repaired 0B in 0 days 00:01:32 with 0 errors on Wed May 27 01:25:56 2020
 config:
 
-        NAME                               STATE     READ WRITE CKSUM
-        test                               ONLINE       0     0     0
-          mirror-0                         ONLINE       0     0     0
-            pci-0000:03:00.0-scsi-0:0:1:0  ONLINE       0     0     0
-            pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0     0
+	NAME                               STATE     READ WRITE CKSUM
+	test                               ONLINE       0     0     0
+	  mirror-0                         ONLINE       0     0     0
+	    pci-0000:03:00.0-scsi-0:0:1:0  ONLINE       0     0     0
+	    pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0     0
 
 errors: No known data errors`
 
@@ -109,11 +109,11 @@ action: Determine if the device needs to be replaced, and clear the errors
   scan: scrub repaired 177M in 0 days 00:01:25 with 0 errors on Tue May 19 00:06:01 2020
 config:
 
-        NAME                               STATE     READ WRITE CKSUM
-        test                               ONLINE       0     0     0
-          mirror-0                         ONLINE       0     0     0
-            pci-0000:03:00.0-scsi-0:0:1:0  ONLINE       0     0     0
-            pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0 11.7K
+	NAME                               STATE     READ WRITE CKSUM
+	test                               ONLINE       0     0     0
+	  mirror-0                         ONLINE       0     0     0
+	    pci-0000:03:00.0-scsi-0:0:1:0  ONLINE       0     0     0
+	    pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0 11.7K
 
 errors: No known data errors`
 
@@ -180,13 +180,13 @@ action: Wait for the resilver to complete.
         236M resilvered, 0.95% done, 0 days 00:15:40 to go
 config:
 
-        NAME                                 STATE     READ WRITE CKSUM
-        test                                 DEGRADED     0     0     0
-          mirror-0                           DEGRADED     0     0     0
-            pci-0000:03:00.0-scsi-0:0:1:0    ONLINE       0     0     0
-            replacing-1                      DEGRADED     0     0     0
-              old                            UNAVAIL      4     1     0
-              pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0     0  (resilvering)
+	NAME                                 STATE     READ WRITE CKSUM
+	test                                 DEGRADED     0     0     0
+	  mirror-0                           DEGRADED     0     0     0
+	    pci-0000:03:00.0-scsi-0:0:1:0    ONLINE       0     0     0
+	    replacing-1                      DEGRADED     0     0     0
+	      old                            UNAVAIL      4     1     0
+	      pci-0000:03:00.0-scsi-0:0:2:0  ONLINE       0     0     0  (resilvering)
 
 errors: No known data errors`
 
@@ -272,9 +272,9 @@ action: Restore the file in question if possible.  Otherwise restore the
   scan: none requested
 config:
 
-        NAME        STATE     READ WRITE CKSUM
-        seagate3tb  ONLINE       0     0    28
-          sda       ONLINE       0     0    56
+	NAME        STATE     READ WRITE CKSUM
+	seagate3tb  ONLINE       0     0    28
+	  sda       ONLINE       0     0    56
 
 errors: Permanent errors have been detected in the following files:
 

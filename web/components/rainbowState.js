@@ -6,19 +6,14 @@ Vue.component('rainbow-state', {
 
 	computed: {
 		color: function() {
-			let state = this.state;
-			let color = "black";
-
-			if (state === "ONLINE") { color = "forestgreen"; }
-			else if (state === "DEGRADED") { color = "rgb(237, 174, 0)"; }
-			else if (state === "UNAVAIL") { color = "blue"; }
-			else if (state === "OFFLINE") { color = "red"; }
-
-			else {
-				console.log(`Unknown state "${state}"`);
+			let colors = {
+				"ONLINE":   "forestgreen",
+				"OFFLINE":  "red",
+				"UNAVAIL":  "blue",
+				"DEGRADED": "rgb(237, 174, 0)",
 			}
 
-			return color;
+			return colors[this.state];
 		}
 	},
 
