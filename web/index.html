@@ -96,7 +96,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				}
 			  },
 			  mounted () {
-				fetch('/api/v1/pools')
+				fetch('/api/v0/pools')
 				.then(res => res.json())
 				.then(res => (this.pools = res))
 				.catch(e => {

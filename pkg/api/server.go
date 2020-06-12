@@ -36,7 +36,7 @@ func Setup() {
 		log.Fatal("Invalid password hash provided")
 
 	} else {
-		log.Printf("Set password hash for user admin as '%s'", temp)
+		log.Printf("Set password hash for user admin")
 		credentials["admin"] = temp
 	}
 
@@ -50,19 +50,41 @@ func Setup() {
 	http.Handle("/", http.FileServer(http.Dir("./web")))
 
 	// TODO: make these a tuple pair and set them up with a for-each loop
-	http.HandleFunc("/api/v1/authenticate", loginHandler)
-	http.HandleFunc("/api/v1/pools", getPoolsHandler)
+	http.HandleFunc("/api/v0/authenticate", loginHandler)
+	http.HandleFunc("/api/v0/pool", getPoolHandler)
+	http.HandleFunc("/api/v0/pools", getAllPoolsHandler)
 
 	log.Printf("Listening on port %s, all interfaces", PORT)
 	log.Fatal(http.ListenAndServe(PORT, nil))
 }
 
-func getPoolsHandler(w http.ResponseWriter, r *http.Request) {
+func getAllPoolsHandler(w http.ResponseWriter, r *http.Request) {
 	if !checkSessionAuth(r, w) {
 		return
 	}
 
-	w.Write(zpool.GetPools())
+	pools := zpool.ParseAllPools()
+	w.Write(zpool.Encode(pools))
+}
+
+func getPoolHandler(w http.ResponseWriter, r *http.Request) {
+	if !checkSessionAuth(r, w) {
+		return
+	}
+
+	r.ParseForm()
+
+	pool := ""
+	log.Printf("%#v", r.Form)
+	if rawPool, ok := r.Form["pool"]; ok {
+		pool = rawPool[0]
+	} else {
+		http.Error(w, "Missing pool parameter", http.StatusBadRequest)
+		return
+	}
+
+	parsed := zpool.ParsePool(pool)
+	w.Write(zpool.Encode(parsed))
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

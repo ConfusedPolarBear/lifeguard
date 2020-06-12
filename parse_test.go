@@ -317,8 +317,10 @@ errors: Permanent errors have been detected in the following files:
 }
 
 func TestSanitizing(t *testing.T) {
-	var evil = "; cat /etc/shadow"
+	evil := "; cat /etc/shadow; #"
+	areEqual("argument sanitization", "catetcshadow", zpool.Sanitize(evil), t)
 
+	evil = "\"; cat /etc/shadow; #"
 	areEqual("argument sanitization", "catetcshadow", zpool.Sanitize(evil), t)
 }
 
