@@ -7,10 +7,13 @@ import (
 	"log"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/api"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	config.Load()
 
 	api.Setup()
 }

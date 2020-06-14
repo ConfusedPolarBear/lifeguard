@@ -14,8 +14,9 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# Built binary
+# Built binary and configuration
 lifeguard
+config.ini
 
 web/dist/
 node_modules/

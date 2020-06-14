@@ -6,8 +6,8 @@ package api
 import (
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
@@ -18,22 +18,26 @@ const PORT string = ":5120"
 const FORM_SIZE int64 = 2048
 
 var (
-	key = []byte(os.Getenv("LIFEGUARD_KEY"))
+	key = []byte("")			// use a temporary key so key and store are accessible throughout the api package
 	store = sessions.NewCookieStore(key)
 	credentials = make(map[string]string)
 )
 
 func Setup() {
+	key = []byte(config.GetString("security.session_key"))
+
 	// Validate session options
 	if len(key) != 32 {
-		log.Println("Set the LIFEGUARD_KEY environment variable to a securely generated random value and relaunch")
+		log.Println("Set the security.session_key configuration option to a securely generated random value and relaunch")
 		log.Fatal("Invalid session key provided - it must be 32 bytes long")
 	}
 
+	store = sessions.NewCookieStore(key)
+
 	// Validate temporary password
-	temp := os.Getenv("LIFEGUARD_PASSWORD")
+	temp := config.GetString("security.admin")
 	if temp == "" {
-		log.Println("Set the LIFEGUARD_PASSWORD environment variable to a bcrypt hash that will be used to login")
+		log.Println("Set the security.admin configuration option to a bcrypt hash that will be used to login")
 		log.Fatal("Invalid password hash provided")
 
 	} else {

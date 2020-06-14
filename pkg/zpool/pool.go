@@ -6,8 +6,9 @@ package zpool
 import (
 	"encoding/json"
 	"log"
-	"os"
 	"strings"
+
+	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
 type Property struct {
@@ -19,7 +20,7 @@ func ParseZpoolStatus(raw string) *Pool {
 	var pool *Pool
 
 	inConfig := false
-	config := ""
+	poolConfig := ""
 
 	var processed []string
 	poolMap := make(map[string]string)
@@ -49,7 +50,7 @@ func ParseZpoolStatus(raw string) *Pool {
 
 		} else {
 			if inConfig {
-				config += line + "\n"
+				poolConfig += line + "\n"
 
 			} else {
 				line = strings.TrimSpace(line)
@@ -62,7 +63,7 @@ func ParseZpoolStatus(raw string) *Pool {
 		key, value := toMap(l)
 		poolMap[key] = value
 	}
-	poolMap["config"] = config
+	poolMap["config"] = poolConfig
 	poolMap["raw"] = raw
 
 	pool = &Pool {
@@ -76,7 +77,7 @@ func ParseZpoolStatus(raw string) *Pool {
 		Raw:    poolMap["raw"],
 	}
 
-	if os.Getenv("LIFEGUARD_DEBUG") == "1" {
+	if config.GetBool("debug.parse") {
 		log.Printf("==================== Processed zpool output =======================\n")
 		for key, value := range poolMap {
 			log.Printf("'%s' => '%s'\n", key, value)

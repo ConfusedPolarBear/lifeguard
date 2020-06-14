@@ -21,8 +21,8 @@ export default {
 		return {
 			auth:     false,
 			version:  '',
-			username: 'admin',
-			password: 'password',
+			username: '',
+			password: '',
 			status:   'Not logged in'
 		}
 	},
@@ -31,11 +31,14 @@ export default {
 			apiClient.Login(this.username, this.password)
 			.then(this.updateLogin);
 		},
-		updateLogin: async function() {
+		updateLogin: async function(first = true) {
 			let info = await apiClient.GetInfo();
 			this.auth = info.Authenticated;
 
-			this.status = this.auth ? 'Logged in' : 'Failed to login';
+			if (!first) {
+				this.status = this.auth ? 'Logged in' : 'Failed to login';
+			}
+
 			if (this.auth) {
 				this.version = info.ZFSVersion;
 			}
