@@ -1,8 +1,9 @@
 <template><div>
 	<div v-if="auth">
+		<pools></pools>
 		<p>ZFS version: {{ version }}</p>
 	</div>
-	<div v-if="!auth">
+	<div v-else>
 		<p>Status: {{ status }}</p>
 
 		<input v-model="username" type="text" placeholder="Username"></input>

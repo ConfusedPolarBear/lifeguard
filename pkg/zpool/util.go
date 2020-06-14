@@ -27,11 +27,6 @@ func getOutput(raw []string) string {
 	return string(stdout)
 }
 
-// Utility command for grabbing contents to the right of defined string
-func grabRightOf(str string, find string) string {
-	return str[len(find):]
-}
-
 // Utility function to find a string in the first 7 characters of the haystack as the headers of the zpool status command are padded to a constant display width
 // Example: "state: ONLINE"
 func hasHeader(haystack string, needle string) bool {

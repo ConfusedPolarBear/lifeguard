@@ -13,10 +13,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</span>
 		</thead>
 		<tbody>
+
+			<!-- TODO: unborkulate the property order -->
 			<tr v-for="pool in pools" :key="pool.Name">
 				<td><router-link :to="'/pool/' + pool.Name"> {{ pool.Name }} </router-link></td>
 				<td v-for="(value, name) in pool.Properties">
-					{{ value.Value }}
+					<rainbow-state v-if="name == 'health'" :state="value.Value"></rainbow-state>
+					<span v-else> {{ value.Value }} </span>
 				</td>
 			</tr>
 		</tbody>
@@ -37,7 +40,7 @@ export default {
 			return a < b;
 		}
 	},
-	created() {
+	mounted() {
 		fetch('/api/v0/pools')
 		.then(res => res.json())
 		.then(res => {
