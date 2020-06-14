@@ -15,6 +15,7 @@ import (
 )
 
 const PORT string = ":5120"
+const FORM_SIZE int64 = 2048
 
 var (
 	key = []byte(os.Getenv("LIFEGUARD_KEY"))
@@ -47,12 +48,13 @@ func Setup() {
 		HttpOnly: true,
 	}
 
-	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.Handle("/", http.FileServer(http.Dir("./web/dist")))
 
-	// TODO: make these a tuple pair and set them up with a for-each loop
 	http.HandleFunc("/api/v0/authenticate", loginHandler)
 	http.HandleFunc("/api/v0/pool", getPoolHandler)
 	http.HandleFunc("/api/v0/pools", getAllPoolsHandler)
+
+	SetupInfo()
 
 	log.Printf("Listening on port %s, all interfaces", PORT)
 	log.Fatal(http.ListenAndServe(PORT, nil))
@@ -72,10 +74,9 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseForm()
+	r.ParseMultipartForm(FORM_SIZE)
 
 	pool := ""
-	log.Printf("%#v", r.Form)
 	if rawPool, ok := r.Form["pool"]; ok {
 		pool = rawPool[0]
 	} else {
@@ -90,7 +91,7 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	session := getSession(r)
 
-	r.ParseForm()
+	r.ParseMultipartForm(FORM_SIZE)
 
 	username, password := getAuth(r)
 	auth := checkAuth(username, password)
@@ -161,14 +162,27 @@ func getSession(r *http.Request) (*sessions.Session) {
 	return session
 }
 
-func checkSessionAuth(r *http.Request, w http.ResponseWriter) (bool) {
+func checkSessionAuthInternal(r *http.Request, w http.ResponseWriter) (bool) {
 	session := getSession(r)
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
 		log.Printf("%s cannot access %s: not authenticated", r.RemoteAddr, r.URL)
-		http.Error(w, "Forbidden", http.StatusForbidden)
 		return false
 	}
 
 	return true
+}
+
+func checkSessionAuthQuiet(r *http.Request, w http.ResponseWriter) (bool) {
+	return checkSessionAuthInternal(r, w)
+}
+
+func checkSessionAuth(r *http.Request, w http.ResponseWriter) (bool) {
+	auth := checkSessionAuthInternal(r, w)
+
+	if !auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+	}
+
+	return auth
 }

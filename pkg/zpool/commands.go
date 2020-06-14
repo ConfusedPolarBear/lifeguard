@@ -10,3 +10,4 @@ const cmdZfs = "/sbin/zfs"
 var cmdPoolStatus   = []string { cmdZpool, "status" }
 var cmdListPools    = []string { cmdZpool, "list", "-H", "-o" }
 var cmdListDatasets = []string { cmdZfs, "list", "-H", "-o" }
+var cmdGetVersion   = []string { cmdZpool, "version" }

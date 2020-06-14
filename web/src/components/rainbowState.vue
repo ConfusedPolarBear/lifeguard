@@ -1,9 +1,12 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
+<template>
+	<span class="rainbow" :style="{ color: color }"> {{ state }} </span>
+</template>
 
-Vue.component('rainbow-state', {
+<script>
+export default {
 	props: [ 'state' ],
-
 	computed: {
 		color: function() {
 			let colors = {
@@ -15,7 +18,6 @@ Vue.component('rainbow-state', {
 
 			return colors[this.state];
 		}
-	},
-
-	template: '<span class="rainbow" :style="{ color: color }"> {{ state }} </span>'
-});
+	}
+};
+</script>

@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+type Property struct {
+	Index int
+	Value string
+}
+
 func ParseZpoolStatus(raw string) *Pool {
 	var pool *Pool
 
@@ -98,8 +103,8 @@ func ListZpools() []string {
 	return strings.Split(getOutput(cmd), "\n")
 }
 
-func GetProperties(name string, which string, props string) map[string]string {
-	pulled := make(map[string]string)
+func GetProperties(name string, which string, props string) map[string]*Property {
+	pulled := make(map[string]*Property)
 
 	props = Sanitize(props)
 	rawProps := strings.Split(props, ",")
@@ -126,7 +131,10 @@ func GetProperties(name string, which string, props string) map[string]string {
 		name := rawProps[index]
 		cleaned := strings.Replace(prop, "\n", "", 1)		// The last property will have a newline at the end but to be safe, we'll clean every returned value
 
-		pulled[name] = cleaned
+		pulled[name] = &Property {
+			Index: index,
+			Value: cleaned,
+		}
 	}
 
 	return pulled
@@ -157,16 +165,25 @@ func ParsePool(name string) *Pool {
 	out := getOutput(cmd)
 
 	pool := ParseZpoolStatus(out)
-	pool.Properties = GetProperties(name, "pool", "name,size,alloc,free,checkpoint,fragmentation,capacity,health")
+	pool.Properties = GetProperties(name, "pool", "size,alloc,free,checkpoint,fragmentation,capacity,health,failmode,ashift")
 
 	return pool
+}
+
+func GetVersion() string {
+	out := getOutput(cmdGetVersion)
+
+	// The first line is the zfs version, the second is the kernel module version
+	version := strings.Split(out, "\n")[0]
+
+	return version
 }
 
 func Encode(raw interface{}) []byte {
 	encoded, err := json.Marshal(raw)
 
 	if err != nil {
-		log.Fatalf("Unable to marshal pool to JSON: %s", err)
+		log.Fatalf("Unable to marshal %#v to JSON: %s", raw, err)
 	}
 
 	return encoded

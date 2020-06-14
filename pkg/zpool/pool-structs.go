@@ -17,7 +17,7 @@ type Pool struct {
 	Containers []*Container
 	Errors     string
 	Raw        string
-	Properties map[string]string
+	Properties map[string]*Property
 }
 
 // VDEV or VDEV member status

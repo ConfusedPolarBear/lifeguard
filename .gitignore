@@ -16,3 +16,6 @@
 
 # Built binary
 lifeguard
+
+web/dist/
+node_modules/
