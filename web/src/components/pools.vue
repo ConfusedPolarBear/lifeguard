@@ -5,20 +5,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <template><div>
 	<p v-if="loading">Loading..</p>
-	<p v-if="error">There was an error loading pool information. Verify you are logged in.</p>
+	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
 	<table>
 		<thead>
-			<th>Pool</th>
-			<th v-for="(value, name) in first.Properties"> {{ name }} </th>
-			</span>
+			<th v-for="(value, index) in first.Properties"> {{ value.Name }} </th>
 		</thead>
 		<tbody>
-
-			<!-- TODO: unborkulate the property order -->
 			<tr v-for="pool in pools" :key="pool.Name">
-				<td><router-link :to="'/pool/' + pool.Name"> {{ pool.Name }} </router-link></td>
-				<td v-for="(value, name) in pool.Properties">
-					<rainbow-state v-if="name == 'health'" :state="value.Value"></rainbow-state>
+				<td v-for="(value, index) in pool.Properties">
+					<rainbow-state v-if="value.Name == 'health'"    :state="value.Value"></rainbow-state>
+					<router-link   v-else-if="value.Name == 'name'" :to="'/pool/' + value.Value"> {{ value.Value }} </router-link>
 					<span v-else> {{ value.Value }} </span>
 				</td>
 			</tr>
@@ -36,17 +32,13 @@ export default {
 		first: {}
 	}},
 	methods: {
-		sortProperties: function(a, b) {
-			return a < b;
-		}
 	},
 	mounted() {
 		fetch('/api/v0/pools')
 		.then(res => res.json())
 		.then(res => {
+			// The first row is needed to setup the column names
 			this.pools = res;
-
-			// Extract the first pool so we can setup the columns
 			this.first = this.pools[0]
 		})
 		.catch(e => {

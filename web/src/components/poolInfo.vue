@@ -3,8 +3,7 @@ Copyright 2020 Matt Montgomery
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<template>
-	<div>
+<template><div>
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 	<p class="poolInfo"><b class="infoHeader">name:</b> {{ pool.Name }} </p>
@@ -37,8 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</table>
 
 	<p class="poolInfo"><b class="infoHeader">errors:</b> {{ pool.Errors }} </p>
-	</div>
-</template>
+</div></template>
 
 <script>
 export default {

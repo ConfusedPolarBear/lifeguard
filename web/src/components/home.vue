@@ -1,7 +1,7 @@
 <template><div>
 	<div v-if="auth">
 		<pools></pools>
-		<p>ZFS version: {{ version }}</p>
+		<p>ZFS version: <code>{{ version }}</code></p>
 	</div>
 	<div v-else>
 		<p>Status: {{ status }}</p>

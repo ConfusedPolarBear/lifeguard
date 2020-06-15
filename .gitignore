@@ -20,3 +20,4 @@ config.ini
 
 web/dist/
 node_modules/
+*.swp

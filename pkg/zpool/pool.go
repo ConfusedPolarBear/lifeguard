@@ -11,11 +11,6 @@ import (
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
-type Property struct {
-	Index int
-	Value string
-}
-
 func ParseZpoolStatus(raw string) *Pool {
 	var pool *Pool
 
@@ -104,37 +99,63 @@ func ListZpools() []string {
 	return strings.Split(getOutput(cmd), "\n")
 }
 
-func GetProperties(name string, which string, props string) map[string]*Property {
-	pulled := make(map[string]*Property)
+func GetProperties(name string, which string, filter string, props string) [][]*Property {
+	var pulled [][]*Property
 
 	props = Sanitize(props)
 	rawProps := strings.Split(props, ",")
 
+	if filter != "filesystem" && filter != "snapshot" && filter != "" {
+		log.Fatalf("Unknown filter type: %s", filter)
+	}
+
 	cmd := []string{ }
-	if (which == "pool") {
+	if (which == "zpool") {
 		cmd = append(cmd, cmdListPools...)
 
-	} else if (which == "dataset") {
+	} else if (which == "zfs") {
 		cmd = append(cmd, cmdListDatasets...)
 
 	} else {
-		log.Fatalf("Unknown item '%s' for GetProperties", which)
+		log.Fatalf("Unknown command '%s' for GetProperties", which)
 	}
 
 	cmd = append(cmd, props, name)		// Append properties and pool name
+	if (which == "zfs") {
+		// only the zfs command supports filtering by type and recursion
+		cmd = append(cmd, "-t", filter, "-r")
+	}
 
 	// This command returns a single line of output with properties delimited by tabs.
 	// The order is determined by the properties passed to the -o flag.
 	output := getOutput(cmd)
-	parsed := strings.Split(output, "\t")
 
-	for index, prop := range parsed {
-		name := rawProps[index]
-		cleaned := strings.Replace(prop, "\n", "", 1)		// The last property will have a newline at the end but to be safe, we'll clean every returned value
+	if config.GetBool("debug.parse") {
+		log.Printf("Raw output of %v: '%s'", cmd, output)
+	}
 
-		pulled[name] = &Property {
-			Index: index,
-			Value: cleaned,
+	lines := strings.Split(output, "\n")
+
+	for number, line := range lines {
+		if len(line) <= 1 {
+			continue
+		}
+
+		parsed := strings.Split(line, "\t")
+
+		for index, prop := range parsed {
+			name := rawProps[index]
+			cleaned := strings.Replace(prop, "\n", "", 1)		// The last property will have a newline at the end but to be safe, we'll clean every returned value
+
+			if len(pulled) <= number {
+				var blank []*Property
+				pulled = append(pulled, blank)
+			}
+
+			pulled[number] = append(pulled[number], &Property {
+				Name:  name,
+				Value: cleaned,
+			})
 		}
 	}
 
@@ -166,7 +187,10 @@ func ParsePool(name string) *Pool {
 	out := getOutput(cmd)
 
 	pool := ParseZpoolStatus(out)
-	pool.Properties = GetProperties(name, "pool", "size,alloc,free,checkpoint,fragmentation,capacity,health,failmode,ashift")
+
+	pool.Datasets   = GetProperties(name, "zfs", "filesystem", "name,used,avail,keystatus,mounted,usedsnap,usedds")
+	pool.Snapshots  = GetProperties(name, "zfs", "snapshot", "name,used,avail,refer")
+	pool.Properties = GetProperties(name, "zpool", "", "name,health,free,size,fragmentation,ashift")[0]
 
 	return pool
 }
