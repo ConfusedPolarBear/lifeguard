@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
 )
 
 func ParseZpoolStatus(raw string) *Pool {
@@ -152,9 +153,20 @@ func GetProperties(name string, which string, filter string, props string) [][]*
 				pulled = append(pulled, blank)
 			}
 
+			/* Since names can't be sanitized without potentially breaking them, an HMAC is calculated over them.
+			 * When a zfs command needs to be run with this unsanitized input, the API only accepts the HMAC as
+			 * the name. Before executing the command, the HMAC looked up in RAM to ensure it is a value we generated.
+			 * This allows the API to work with unsanitized text in a safe manner.
+			 */
+			hmac := ""
+			if name == "name" {
+				hmac = crypto.GenerateHMAC(cleaned)
+			}
+
 			pulled[number] = append(pulled[number], &Property {
 				Name:  name,
 				Value: cleaned,
+				HMAC:  hmac,
 			})
 		}
 	}
@@ -175,22 +187,29 @@ func ParseAllPools() []*Pool {
 			continue
 		}
 
-		pools = append(pools, ParsePool(name))
+		pools = append(pools, ParsePool(name, false))
 	}
 
 	return pools
 }
 
-func ParsePool(name string) *Pool {
+func ParsePool(name string, includeChildren bool) *Pool {
 	name = Sanitize(name)
 	cmd := append(cmdPoolStatus, name)
 	out := getOutput(cmd)
 
 	pool := ParseZpoolStatus(out)
-
-	pool.Datasets   = GetProperties(name, "zfs", "filesystem", "name,used,avail,keystatus,mounted,usedsnap,usedds")
-	pool.Snapshots  = GetProperties(name, "zfs", "snapshot", "name,used,avail,refer")
 	pool.Properties = GetProperties(name, "zpool", "", "name,health,free,size,fragmentation,ashift")
+
+	/*
+	 * This is optional since parsing all snapshots is expensive if many are present.
+	 * In one test with 126 snapshots (created automatically with sanoid), the API response time went
+	 * from less than 50 ms on average to 260 ms.
+	 */
+	if includeChildren {
+		pool.Datasets   = GetProperties(name, "zfs", "filesystem", "name,used,avail,keystatus,mounted,usedsnap,usedds")
+		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", "name,used,avail,refer")
+	}
 
 	return pool
 }

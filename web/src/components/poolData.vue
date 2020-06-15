@@ -3,7 +3,7 @@ Copyright 2020 Matt Montgomery
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<template><div>
+<template><div :class="{ hide: loading }">
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
 	<table>

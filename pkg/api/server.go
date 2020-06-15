@@ -88,7 +88,7 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parsed := zpool.ParsePool(pool)
+	parsed := zpool.ParsePool(pool, true)
 	w.Write(zpool.Encode(parsed))
 }
 

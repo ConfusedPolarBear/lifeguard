@@ -6,6 +6,7 @@ package zpool
 type Property struct {
 	Name  string
 	Value string
+	HMAC  string
 }
 
 // Reused to represent datasets and snapshots
