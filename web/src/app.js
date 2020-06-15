@@ -5,12 +5,16 @@ import './main.css';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-Vue.use(VueRouter);
 
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
+import poolData from './components/poolData.vue';
+
+Vue.use(VueRouter);
+
 Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
+Vue.component('pool-data', poolData);
 
 // TODO: unborkulate this. vue says that raw is undefined
 /*

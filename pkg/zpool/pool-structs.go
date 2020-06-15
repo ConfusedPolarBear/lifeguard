@@ -19,7 +19,7 @@ type Pool struct {
 	Raw        string
 	Datasets   [][]*Property
 	Snapshots  [][]*Property
-	Properties []*Property
+	Properties [][]*Property
 }
 
 // VDEV or VDEV member status

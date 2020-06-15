@@ -36,6 +36,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</table>
 
 	<p class="poolInfo"><b class="infoHeader">errors:</b> {{ pool.Errors }} </p>
+
+	<!-- TODO: only use one API call here -->
+	<pool-data :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
+	<pool-data :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
 </div></template>
 
 <script>

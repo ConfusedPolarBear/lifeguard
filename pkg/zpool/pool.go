@@ -190,7 +190,7 @@ func ParsePool(name string) *Pool {
 
 	pool.Datasets   = GetProperties(name, "zfs", "filesystem", "name,used,avail,keystatus,mounted,usedsnap,usedds")
 	pool.Snapshots  = GetProperties(name, "zfs", "snapshot", "name,used,avail,refer")
-	pool.Properties = GetProperties(name, "zpool", "", "name,health,free,size,fragmentation,ashift")[0]
+	pool.Properties = GetProperties(name, "zpool", "", "name,health,free,size,fragmentation,ashift")
 
 	return pool
 }

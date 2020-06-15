@@ -10,12 +10,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<thead>
 			<th v-for="(value, index) in first"> {{ value.Name }} </th>
 		</thead>
-		<tbody v-for="pool in pools" :key="pool.Name">
-			<!-- TODO: add back :key to both v-for loops -->
-			<tr v-for="item in pool.Properties">
+		<tbody>
+			<tr v-for="item in pool[display]">
 				<td v-for="(value, index) in item">
 					<rainbow-state v-if="value.Name == 'health'"    :state="value.Value"></rainbow-state>
-					<router-link   v-else-if="value.Name == 'name'" :to="'/pool/' + value.Value"> {{ value.Value }} </router-link>
+					<router-link   v-else-if="value.Name == 'name'" :to="url + value.Value"> {{ value.Value }} </router-link>
 					<span v-else> {{ value.Value }} </span>
 				</td>
 			</tr>
@@ -25,22 +24,36 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 export default {
-	name: "pools",
+	name: "poolData",
+	props: [
+		// which pool should we display info for
+		'poolName',
+
+		// Array to pull info from (datasets/snapshots/etc)
+		'display',
+
+		// Partial path for loading additional info from the API
+		'path',
+	],
 	data() { return {
 		loading: true,
 		error: false,
-		pools: [],
+		url: '',
+		pool: [],
 		first: {}
 	}},
 	methods: {
 	},
 	mounted() {
-		fetch('/api/v0/pools')
+		// TODO: why does overwriting the property not work?
+		this.url = `/${this.path}/`;
+
+		fetch('/api/v0/pool?pool=' + this.poolName)
 		.then(res => res.json())
 		.then(res => {
 			// The first row is needed to setup the column names
-			this.pools = res;
-			this.first = this.pools[0].Properties[0]
+			this.pool = res;
+			this.first = this.pool[this.display][0]
 		})
 		.catch(e => {
 			console.error(e);
