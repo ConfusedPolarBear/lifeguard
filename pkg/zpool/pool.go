@@ -199,7 +199,7 @@ func ParsePool(name string, includeChildren bool) *Pool {
 	out := getOutput(cmd)
 
 	pool := ParseZpoolStatus(out)
-	pool.Properties = GetProperties(name, "zpool", "", "name,health,free,size,fragmentation,ashift")
+	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool"))
 
 	/*
 	 * This is optional since parsing all snapshots is expensive if many are present.
@@ -207,8 +207,8 @@ func ParsePool(name string, includeChildren bool) *Pool {
 	 * from less than 50 ms on average to 260 ms.
 	 */
 	if includeChildren {
-		pool.Datasets   = GetProperties(name, "zfs", "filesystem", "name,used,avail,keystatus,mounted,usedsnap,usedds")
-		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", "name,used,avail,refer")
+		pool.Datasets   = GetProperties(name, "zfs", "filesystem", config.GetString("properties.dataset"))
+		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", config.GetString("properties.snapshot"))
 	}
 
 	return pool

@@ -7,11 +7,12 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"sync"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
-var known = make(map[string]string)
+var known sync.Map
 
 func GenerateHMAC(plaintext string) string {
 	data := []byte(plaintext)
@@ -21,14 +22,14 @@ func GenerateHMAC(plaintext string) string {
 	h.Write(data)
 
 	hmac := hex.EncodeToString(h.Sum(nil))
-	known[hmac] = plaintext
+	known.Store(hmac, plaintext)
 
 	return hmac
 }
 
 func LookupHMAC(hmac string) string {
-	if value, ok := known[hmac]; ok {
-		return value
+	if value, ok := known.Load(hmac); ok {
+		return value.(string)
 	}
 
 	return ""
