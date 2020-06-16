@@ -16,6 +16,39 @@ Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
 Vue.component('pool-data', poolData);
 
+Vue.filter('prettyPrint', function(value, name) {
+	var numbers  = [ 'used', 'avail', 'usedsnap', 'usedds', 'refer', 'free', 'size' ];
+	var percents = [ 'capacity', 'fragmentation' ];
+
+	if (numbers.indexOf(name) !== -1) {
+		if (value === '-') {
+			return value;
+		}
+
+		else if (value == '0') {
+			return '0B';
+		}
+
+		let suffix = [ 'B', 'K', 'M', 'G', 'T' ];
+		let index = 0;
+		let size = Number(value);
+
+		while (size > 1024) {
+			size /= 1024;
+			index++;
+		}
+		size = size.toFixed(2);
+
+		return size.toString() + suffix[index];
+	}
+
+	else if (percents.indexOf(name) !== -1) {
+		return value + '%';
+	}
+
+	return value;
+});
+
 // TODO: unborkulate this. vue says that raw is undefined
 /*
 Vue.filter('periodNewlines', function(raw) {

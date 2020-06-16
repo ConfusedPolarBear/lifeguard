@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				<td v-for="(value, index) in item">
 					<rainbow-state v-if="value.Name == 'health'"    :state="value.Value"></rainbow-state>
 					<router-link   v-else-if="value.Name == 'name'" :to="'/pool/' + value.Value"> {{ value.Value }} </router-link>
-					<span v-else> {{ value.Value }} </span>
+					<span v-else> {{ value.Value | prettyPrint(value.Name)}} </span>
 				</td>
 			</tr>
 		</tbody>
