@@ -1,7 +1,7 @@
 <template><div>
 	<div v-if="auth">
 		<pools></pools>
-		<p>ZFS version: <code>{{ version }}</code></p>
+		<p>Version: <code>{{ version }} {{ commit }}</code></p>
 	</div>
 	<div v-else>
 		<p>Status: {{ status }}</p>
@@ -21,6 +21,7 @@ export default {
 		return {
 			auth:     false,
 			version:  '',
+			commit:   '',
 			username: '',
 			password: '',
 			status:   'Not logged in'
@@ -41,6 +42,7 @@ export default {
 
 			if (this.auth) {
 				this.version = info.ZFSVersion;
+				this.commit = info.Commit;
 			}
 		}
 	},
