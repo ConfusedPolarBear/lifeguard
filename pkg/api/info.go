@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
 func SetupInfo() {
@@ -22,6 +23,10 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 
 	if auth {
 		info["ZFSVersion"] = zpool.GetVersion()
+
+		info["Commit"] = config.Commit
+		info["BuildTime"] = config.BuildTime
+		info["GoVersion"] = config.GoVersion
 	}
 
 	w.Write(zpool.Encode(info))
