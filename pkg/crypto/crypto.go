@@ -5,11 +5,15 @@ package crypto
 
 import (
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"log"
 	"sync"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var known sync.Map
@@ -33,4 +37,28 @@ func LookupHMAC(hmac string) string {
 	}
 
 	return ""
+}
+
+func HashPassword(plaintext string) string {
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), 12)
+	if err != nil {
+		log.Fatalf("Unable to hash password: %s", err)
+	}
+
+	return string(hash)
+}
+
+func GetRandom(n int) string {
+	b := generateRandomBytes(n)
+	return hex.EncodeToString(b)
+}
+
+func generateRandomBytes(n int) []byte {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		log.Fatalf("Unable to generate random bytes: %s", err)
+	}
+
+	return b
 }

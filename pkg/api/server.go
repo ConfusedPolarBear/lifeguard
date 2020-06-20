@@ -4,14 +4,19 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	"syscall"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 const PORT string = ":5120"
@@ -28,22 +33,32 @@ func Setup() {
 
 	// Validate session options
 	if len(key) != 32 {
-		log.Println("Set the security.session_key configuration option to a securely generated random value and relaunch")
-		log.Fatal("Invalid session key provided - it must be 32 bytes long")
+		log.Println("Regenerating session key")
+
+		temp := strings.ToUpper(crypto.GetRandom(16))
+		key = []byte(temp)
+		config.Set("security.session_key", temp)
 	}
 
 	store = sessions.NewCookieStore(key)
 
-	// Validate temporary password
-	temp := config.GetString("security.admin")
-	if temp == "" {
-		log.Println("Set the security.admin configuration option to a bcrypt hash that will be used to login")
-		log.Fatal("Invalid password hash provided")
+	adminHash := config.GetString("security.admin")
+	if adminHash == "" {
+		fmt.Print("Enter new password for user admin: ")
 
-	} else {
-		log.Printf("Set password hash for user admin")
-		credentials["admin"] = temp
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Fatalf("Unable to get password: %s", err)
+		}
+
+		adminHash = crypto.HashPassword(string(bytePassword))
+		config.Set("security.admin", adminHash)
+
+		fmt.Println()
+		log.Printf("Password successfully hashed and saved")
 	}
+
+	credentials["admin"] = adminHash
 
 	store.Options = &sessions.Options{
 		Path:     "/",

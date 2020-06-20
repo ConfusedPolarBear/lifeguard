@@ -28,3 +28,8 @@ func GetBool(key string) bool {
 func GetString(key string) string {
 	return viper.GetString(key)
 }
+
+func Set(key string, value interface{}) {
+	viper.Set(key, value)
+	viper.WriteConfig()
+}
