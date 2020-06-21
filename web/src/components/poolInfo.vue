@@ -37,6 +37,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</tbody>
 		</table>
 
+		<b-table striped hover :items="pool.Containers"></b-table>
+		
 		<p class="poolInfo"><b class="infoHeader">errors:</b> {{ pool.Errors }} </p>
 	</div>
 

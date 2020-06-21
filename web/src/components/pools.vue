@@ -21,6 +21,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</tr>
 		</tbody>
 	</table>
+
+	<b-table striped hover :items="pools"></b-table>
 </div></template>
 
 <script>
