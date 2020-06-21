@@ -1,5 +1,5 @@
 # lifeguard
-![GitHub](https://img.shields.io/github/license/ConfusedPolarBear/lifeguard)
+![GitHub](https://img.shields.io/github/license/ConfusedPolarBear/lifeguard) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ConfusedPolarBear_lifeguard&metric=security_rating)](https://sonarcloud.io/dashboard?id=ConfusedPolarBear_lifeguard)
 
 ## Short description
 lifeguard is a ZFS pool management web interface which supports pool status, snapshots, and current data usage. 
