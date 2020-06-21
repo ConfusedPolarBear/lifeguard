@@ -5,12 +5,18 @@ import './main.css';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
 import poolData from './components/poolData.vue';
 
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 Vue.use(VueRouter);
+Vue.use(BootstrapVue);
+Vue.use(IconsPlugin);
 
 Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
