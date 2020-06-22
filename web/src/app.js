@@ -67,6 +67,10 @@ const routes = [
 		component: require('./components/home.vue').default
 	},
 	{
+		path: "/about",
+		component: require('./components/about.vue').default
+	},
+	{
 		path: "/pools",
 		component: require('./components/pools.vue').default
 	},

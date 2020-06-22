@@ -5,5 +5,6 @@ package config
 
 // These are set automatically by build.sh - DO NOT CHANGE THEM HERE
 var Commit    string
+var Modified  string
 var BuildTime string
 var GoVersion string

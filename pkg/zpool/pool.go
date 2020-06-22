@@ -37,7 +37,7 @@ func ParseZpoolStatus(raw string) *Pool {
 				inConfig = true
 				continue
 
-			} else if hasHeader(line, "errors:") && inConfig {
+			} else if hasHeader(line, "errors:") {
 				// The errors section always appears immediately after the config
 				inConfig = false
 			}
