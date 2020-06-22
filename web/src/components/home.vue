@@ -3,7 +3,7 @@
 	<!-- TODO: Make component for this header -->
 	<b-navbar variant="dark" type="dark">
 		<b-navbar-brand to="/home">LifeGuard</b-navbar-brand>
-		<b-nav-text class="ml-auto">ZFS Version: <code>{{ version }}</code></b-nav-text>
+		<b-nav-text class="ml-auto">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
 	</b-navbar>
 
 	<div v-if="auth">
@@ -27,6 +27,7 @@ export default {
 		return {
 			auth:     false,
 			version:  '',
+			commit:   '',
 			username: '',
 			password: '',
 			status:   'Not logged in'
@@ -47,6 +48,7 @@ export default {
 
 			if (this.auth) {
 				this.version = info.ZFSVersion;
+				this.commit = info.Commit;
 			}
 		}
 	},

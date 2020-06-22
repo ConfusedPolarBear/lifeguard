@@ -13,6 +13,11 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	log.Println("Starting Lifeguard")
+	log.Printf("Git commit: %s%s", config.Commit, config.Modified)
+	log.Printf("Build time: %s", config.BuildTime)
+	log.Printf("Go version: %s", config.GoVersion)
+
 	config.Load()
 
 	api.Setup()
