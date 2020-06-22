@@ -8,13 +8,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 
 	<div :class="{ hide: loading }">
-		<p class="poolInfo"><b class="infoHeader">name:</b> {{ pool.Name }} </p>
-		<p class="poolInfo"><b class="infoHeader">state:</b><rainbow-state :state="pool.State"></rainbow-state></p>
-		<p class="poolInfo"><b class="infoHeader">status:</b> {{ pool.Status }} </p>
-		<p class="poolInfo"><b class="infoHeader">action:</b> {{ pool.Action }} </p>
 
-		<p class="poolInfo" v-if='pool.See !== ""'><b class="infoHeader">see:</b> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></p>
-		<p class="poolInfo"><b class="infoHeader">scan:</b> {{ pool.Scan }} </p>
+		<b-card :title="pool.Name" :sub-title="pool.State">
+			<b-card-text><b>status:</b> {{ pool.Status }} </b-card-text>
+			<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
+
+			<b-card-text v-if='pool.See !== ""'><b>see:</b> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></b-card-text>
+			<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
+			<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
+		</b-card>
 
 		<table>
 			<thead>
@@ -38,8 +40,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</table>
 
 		<b-table striped hover :items="pool.Containers" :fields="['Name','Level','State','Read','Write','Cksum']"></b-table>
-		
-		<p class="poolInfo"><b class="infoHeader">errors:</b> {{ pool.Errors }} </p>
 	</div>
 
 	<!-- TODO: only use one API call here -->
