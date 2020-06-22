@@ -3,6 +3,9 @@
 	<!-- TODO: Make component for this header -->
 	<b-navbar variant="dark" type="dark">
 		<b-navbar-brand to="/home">LifeGuard</b-navbar-brand>
+		<b-navbar-nav>
+			<b-nav-item to="/about">About</b-nav-item>
+		</b-navbar-nav>
 		<b-nav-text class="ml-auto">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
 	</b-navbar>
 
