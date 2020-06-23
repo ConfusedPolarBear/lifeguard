@@ -4,6 +4,7 @@
 package zpool
 
 import (
+	"bytes"
 	"log"
 	"os/exec"
 	"regexp"
@@ -14,6 +15,23 @@ import (
 func Sanitize(raw string) string {
 	re := regexp.MustCompile(`[^a-zA-Z0-9\-_:\.%,]`)
 	return re.ReplaceAllString(raw, "")
+}
+
+// TODO: rewrite getOutput to follow this standard also
+func ExecWithInput(raw []string, stdin []byte) (string, string, error) {
+	var stdout, stderr bytes.Buffer
+
+	cmd := exec.Command(raw[0], raw[1:]...)
+	cmd.Stdin = bytes.NewBuffer(stdin)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		return "", string(stderr.Bytes()), err
+	}
+
+	return string(stdout.Bytes()), string(stderr.Bytes()), nil
 }
 
 func getOutput(raw []string) string {

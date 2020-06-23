@@ -11,3 +11,5 @@ var cmdPoolStatus   = []string { cmdZpool, "status" }
 var cmdListPools    = []string { cmdZpool, "list", "-p", "-H", "-o" }
 var cmdListDatasets = []string { cmdZfs, "list", "-p", "-H", "-o" }
 var cmdGetVersion   = []string { cmdZpool, "version" }
+
+var CmdLoadKey   = []string { cmdZfs, "load-key" }

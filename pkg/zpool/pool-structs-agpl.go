@@ -12,7 +12,7 @@ type Property struct {
 // Reused to represent datasets and snapshots
 type Data struct {
 	Name       string
-	Used       string
-	Available  string
-	Properties map[string]*Property
+	Type       string
+	Properties []*Property
+	Internal   []*Property
 }

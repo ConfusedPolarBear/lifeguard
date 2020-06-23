@@ -1,6 +1,8 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// TODO: save auth info in the session (username, 2fa, etc)
+
 package api
 
 import (
@@ -67,16 +69,50 @@ func Setup() {
 		HttpOnly: true,
 	}
 
+	// Static web UI
 	http.Handle("/", http.FileServer(http.Dir("./web/dist")))
 
+	// Security
 	http.HandleFunc("/api/v0/authenticate", loginHandler)
+
+	// Pool
 	http.HandleFunc("/api/v0/pool", getPoolHandler)
 	http.HandleFunc("/api/v0/pools", getAllPoolsHandler)
 
 	SetupInfo()
+	SetupDataset()
 
 	log.Printf("Listening on port %s, all interfaces", PORT)
 	log.Fatal(http.ListenAndServe(PORT, nil))
+}
+
+func GetParameter(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
+	data := ""
+	if rawData, ok := r.Form[name]; ok {
+		data = rawData[0]
+	} else {
+		msg := fmt.Sprintf("Missing %s parameter", name)
+		http.Error(w, msg, http.StatusBadRequest)
+		return "", false
+	}
+
+	return data, true
+}
+
+func GetHMAC(w http.ResponseWriter, r *http.Request) (string, bool) {
+	data := ""
+	hmac, ok := GetParameter(w, r, "id")
+	if ok {
+		data = crypto.LookupHMAC(hmac)
+		if data == "" {
+			http.Error(w, "Invalid id", http.StatusBadRequest)
+			return "", false
+		}
+	} else {
+		return "", false
+	}
+
+	return data, true
 }
 
 func getAllPoolsHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,13 +129,8 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.ParseMultipartForm(FORM_SIZE)
-
-	pool := ""
-	if rawPool, ok := r.Form["pool"]; ok {
-		pool = rawPool[0]
-	} else {
-		http.Error(w, "Missing pool parameter", http.StatusBadRequest)
+	pool, ok := GetParameter(w, r, "pool")
+	if !ok {
 		return
 	}
 
@@ -109,8 +140,6 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	session := getSession(r)
-
-	r.ParseMultipartForm(FORM_SIZE)
 
 	username, password := getAuth(r)
 	auth := checkAuth(username, password)
@@ -177,6 +206,8 @@ func checkAuth(username string, password string) (bool) {
 func getSession(r *http.Request) (*sessions.Session) {
 	// store.Get returns a blank session if there is an error, so the error is safe to ignore
 	session, _ := store.Get(r, "SESSION")
+
+	r.ParseMultipartForm(FORM_SIZE)
 
 	return session
 }

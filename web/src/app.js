@@ -77,6 +77,10 @@ const routes = [
 	{
 		path: "/pool/:poolName",
 		component: require('./components/poolInfo.vue').default
+	},
+	{
+		path: "/dataset/:id",
+		component: require('./components/dataset.vue').default
 	}
 ];
 

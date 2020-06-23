@@ -13,6 +13,10 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	if len(config.Commit) > 7 {
+		config.Commit = config.Commit[:7]
+	}
+
 	log.Println("Starting Lifeguard")
 	log.Printf("Git commit: %s%s", config.Commit, config.Modified)
 	log.Printf("Build time: %s", config.BuildTime)

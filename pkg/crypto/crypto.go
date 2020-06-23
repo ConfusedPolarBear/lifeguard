@@ -32,6 +32,8 @@ func GenerateHMAC(plaintext string) string {
 }
 
 func LookupHMAC(hmac string) string {
+	// Load() is probably vulnerable to a timing attack but irrelevant since the HMAC values aren't secret.
+	// HMACs are only used to prevent command injection.
 	if value, ok := known.Load(hmac); ok {
 		return value.(string)
 	}

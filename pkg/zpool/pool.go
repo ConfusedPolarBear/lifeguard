@@ -122,7 +122,7 @@ func GetProperties(name string, which string, filter string, props string) [][]*
 	}
 
 	cmd = append(cmd, props, name)		// Append properties and pool name
-	if (which == "zfs") {
+	if (which == "zfs" && filter != "") {
 		// only the zfs command supports filtering by type and recursion
 		cmd = append(cmd, "-t", filter, "-r")
 	}
