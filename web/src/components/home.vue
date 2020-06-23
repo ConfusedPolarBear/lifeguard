@@ -3,7 +3,6 @@
 	<web-header></web-header>
 
 	<div v-if="auth">
-		<pools></pools>
 	</div>
 	<div v-else>
 		<p>Status: {{ status }}</p>

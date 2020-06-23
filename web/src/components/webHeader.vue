@@ -2,6 +2,9 @@
 	<b-navbar variant="dark" type="dark">
 		<b-navbar-brand to="/home">LifeGuard</b-navbar-brand>
 		<b-navbar-nav>
+			<b-nav-item to="/pools">Pools</b-nav-item>
+			<b-nav-item to="/snapshots">Snapshots</b-nav-item>
+			<b-nav-item to="/data">Data</b-nav-item>
 			<b-nav-item to="/about">About</b-nav-item>
 		</b-navbar-nav>
 		<b-nav-text class="ml-auto">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>

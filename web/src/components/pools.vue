@@ -3,7 +3,12 @@ Copyright 2020 Matt Montgomery
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<template><b-container fluid="lg">
+<template><div>
+
+	<web-header></web-header>
+
+	<b-container fluid="lg">
+
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
 	<table>
@@ -23,7 +28,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</table>
 
 	<b-table striped hover :items="pools" :fields="['Name','State','Status','Action','Errors','Containers','Properties']"></b-table>
-</b-container></template>
+
+	</b-container>
+</div></template>
 
 <script>
 export default {
