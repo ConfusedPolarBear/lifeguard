@@ -7,6 +7,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<web-header></web-header>
 	
+	<b-container fluid="lg">
+
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 
@@ -48,6 +50,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<!-- TODO: only use one API call here -->
 	<pool-data :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
 	<pool-data :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+
+	</b-container>
 </div></template>
 
 <script>
