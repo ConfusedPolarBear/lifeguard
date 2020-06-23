@@ -4,6 +4,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template><div>
+
+	<web-header></web-header>
+	
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 

@@ -1,13 +1,6 @@
 <template><div>
 
-	<!-- TODO: Make component for this header -->
-	<b-navbar variant="dark" type="dark">
-		<b-navbar-brand to="/home">LifeGuard</b-navbar-brand>
-		<b-navbar-nav>
-			<b-nav-item to="/about">About</b-nav-item>
-		</b-navbar-nav>
-		<b-nav-text class="ml-auto">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
-	</b-navbar>
+	<web-header></web-header>
 
 	<div v-if="auth">
 		<pools></pools>
@@ -29,8 +22,6 @@ export default {
 	data() {
 		return {
 			auth:     false,
-			version:  '',
-			commit:   '',
 			username: '',
 			password: '',
 			status:   'Not logged in'
@@ -47,11 +38,6 @@ export default {
 
 			if (!first) {
 				this.status = this.auth ? 'Logged in' : 'Failed to login';
-			}
-
-			if (this.auth) {
-				this.version = info.ZFSVersion;
-				this.commit = info.Commit;
 			}
 		}
 	},
