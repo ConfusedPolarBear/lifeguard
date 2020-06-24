@@ -9,25 +9,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<b-container fluid="lg">
 
-	<p v-if="loading">Loading..</p>
 	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
-	<table>
-		<thead>
-			<th v-for="(value, index) in first"> {{ value.Name }} </th>
-		</thead>
-		<tbody v-for="pool in pools" :key="pool.Name">
-			<!-- TODO: add back :key to both v-for loops -->
-			<tr v-for="item in pool.Properties">
-				<td v-for="(value, index) in item">
-					<rainbow-state v-if="value.Name == 'health'"    :state="value.Value"></rainbow-state>
-					<router-link   v-else-if="value.Name == 'name'" :to="'/pool/' + value.Value"> {{ value.Value }} </router-link>
-					<span v-else> {{ value.Value | prettyPrint(value.Name)}} </span>
-				</td>
-			</tr>
-		</tbody>
-	</table>
 
-	<b-table striped hover :items="pools" :fields="['Name','State','Status','Action','Errors','Containers','Properties']"></b-table>
+	<p></p>
+
+	<b-card-group columns>
+		<div v-for="pool in pools" :key="pool.Name">
+			<b-card v-if="pool.State == 'ONLINE'" :title="pool.Name" :sub-title="pool.Status" :header="pool.State"
+					header-bg-variant="success" header-text-variant="white" border-variant="success">
+				<router-link :to="'/pool/' + pool.Name" class="stretched-link"></router-link>
+				<p></p>
+				<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
+				<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
+				<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
+			</b-card>
+			<b-card v-else :title="pool.Name" :sub-title="pool.Status" :header="pool.State"
+					header-bg-variant="secondary" header-text-variant="white" border-variant="secondary">
+				<router-link :to="'/pool/' + pool.Name" class="stretched-link"></router-link>
+				<p></p>
+				<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
+				<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
+				<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
+			</b-card>
+		</div>
+	</b-card-group>
 
 	</b-container>
 </div></template>
