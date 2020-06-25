@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 )
 
 func ExecWithInput(raw []string, stdin []byte) (string, string, error) {
@@ -32,7 +34,13 @@ func MustExec(raw []string) string {
 func execInternal(raw []string, stdin []byte) (string, string, error) {
 	var stdout, stderr bytes.Buffer
 
+	raw = append([]string { config.GetString("exec.timeout_path"), config.GetString("exec.timeout") }, raw...)
 	cmd := exec.Command(raw[0], raw[1:]...)
+
+	if config.GetBool("debug.exec") {
+		log.Printf("Executing command: %v", cmd)
+	}
+
 	cmd.Stdin = bytes.NewBuffer(stdin)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
