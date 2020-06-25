@@ -19,6 +19,8 @@ func SetupDataset() {
 	http.HandleFunc("/api/v0/data", getDataInfoHandler)
 
 	http.HandleFunc("/api/v0/key/load", loadKeyHandler)
+
+	http.HandleFunc("/api/v0/pool/scrub", scrubHandler)
 }
 
 func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,12 +61,7 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := append(zpool.CmdLoadKey, name)
-	stdout, stderr, err := zpool.ExecWithInput(cmd, []byte(passphrase))
-
-	// TODO: fix username
-	msg := fmt.Sprintf("%s loaded key for %s", "UNDEFINED", name)
-
+	stderr, err := zpool.LoadKey(name, passphrase)
 	if err != nil {
 		// TODO: unit test the first two conditions
 		if strings.Index(stderr, "Incorrect key provided") != -1 {
@@ -81,6 +78,31 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf(msg)
-	w.Write([]byte(stdout))
+	// TODO: fix username
+	log.Println(fmt.Sprintf("%s loaded key for %s", "UNDEFINED", name))
+	http.Error(w, "", http.StatusOK)
+}
+
+func scrubHandler(w http.ResponseWriter, r *http.Request) {
+	if !checkSessionAuth(r, w) {
+		return
+	}
+
+	name, ok := GetHMAC(w, r)
+	if !ok {
+		return
+	}
+
+	stderr, err := zpool.Scrub(name)
+
+	if err != nil {
+		log.Printf("Unable to scrub pool %s: %s. %s", name, err, stderr)
+		http.Error(w, "An error occurred, check the server log for more details.", http.StatusBadRequest)
+
+		return
+	}
+
+	// TODO: fix username
+	log.Println(fmt.Sprintf("%s started scrub for pool %s", "UNDEFINED", name))
+	http.Error(w, "", http.StatusOK)
 }

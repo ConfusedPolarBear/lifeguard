@@ -1,0 +1,7 @@
+# This file is part of Lifeguard - do not modify it
+# Copyright: Matt Montgomery (licensed AGPLv3)
+
+# User Host = (Runas) Command1, Command2
+
+# Allow
+ALL ALL=(root) NOPASSWD: /sbin/zpool scrub *, /sbin/zfs mount *, /sbin/zfs unmount *

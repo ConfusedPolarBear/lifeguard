@@ -17,6 +17,7 @@
 # Built binary and configuration
 lifeguard
 config.ini
+lifeguard.tar.gz
 
 web/dist/
 node_modules/

@@ -20,12 +20,15 @@ build:
 	npm run dev
 
 archive:
-	tar -cf $(ARCHIVE) lifeguard web/ example_config.ini
+	tar -cf $(ARCHIVE) lifeguard web/ assets/ scripts/ example_config.ini
 	tar -f $(ARCHIVE) --delete web/src
 	gzip -f $(ARCHIVE)
 
 test:
 	go test
+
+install:
+	scripts/install.sh
 
 clean:
 	go clean

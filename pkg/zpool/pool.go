@@ -97,7 +97,7 @@ func ParseZpoolStatus(raw string) *Pool {
 
 func ListZpools() []string {
 	cmd := append(cmdListPools, "name")
-	return strings.Split(getOutput(cmd), "\n")
+	return strings.Split(MustExec(cmd), "\n")
 }
 
 func GetProperties(name string, which string, filter string, props string) [][]*Property {
@@ -129,7 +129,7 @@ func GetProperties(name string, which string, filter string, props string) [][]*
 
 	// This command returns a single line of output with properties delimited by tabs.
 	// The order is determined by the properties passed to the -o flag.
-	output := getOutput(cmd)
+	output := MustExec(cmd)
 
 	if config.GetBool("debug.parse") {
 		log.Printf("Raw output of %v: '%s'", cmd, output)
@@ -196,7 +196,7 @@ func ParseAllPools() []*Pool {
 func ParsePool(name string, includeChildren bool) *Pool {
 	name = Sanitize(name)
 	cmd := append(cmdPoolStatus, name)
-	out := getOutput(cmd)
+	out := MustExec(cmd)
 
 	pool := ParseZpoolStatus(out)
 	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool"))
@@ -215,12 +215,26 @@ func ParsePool(name string, includeChildren bool) *Pool {
 }
 
 func GetVersion() string {
-	out := getOutput(cmdGetVersion)
+	out := MustExec(cmdGetVersion)
 
 	// The first line is the zfs version, the second is the kernel module version
 	version := strings.Split(out, "\n")[0]
 
 	return version
+}
+
+func LoadKey(dataset string, passphrase string) (string, error) {
+	cmd := append(cmdLoadKey, dataset)
+	_, stderr, err := ExecWithInput(cmd, []byte(passphrase))
+
+	return stderr, err
+}
+
+func Scrub(pool string) (string, error) {
+	cmd := append(cmdScrub, pool)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
 }
 
 func Encode(raw interface{}) []byte {

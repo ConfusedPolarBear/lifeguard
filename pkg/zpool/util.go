@@ -11,14 +11,25 @@ import (
 	"strings"
 )
 
-// Sanitizes a string so it is safe to use as a shell argument. Only characters that are valid in zfs datasets, snapshots or properties are permitted.
-func Sanitize(raw string) string {
-	re := regexp.MustCompile(`[^a-zA-Z0-9\-_:\.%,]`)
-	return re.ReplaceAllString(raw, "")
+func ExecWithInput(raw []string, stdin []byte) (string, string, error) {
+	return execInternal(raw, stdin)
 }
 
-// TODO: rewrite getOutput to follow this standard also
-func ExecWithInput(raw []string, stdin []byte) (string, string, error) {
+func Exec(raw []string) (string, string, error) {
+	return execInternal(raw, []byte(""))
+}
+
+func MustExec(raw []string) string {
+	stdout, _, err := Exec(raw)
+
+	if err != nil {
+		log.Fatalf("Unable to exec %s: %s", raw, err)
+	}
+
+	return stdout
+}
+
+func execInternal(raw []string, stdin []byte) (string, string, error) {
 	var stdout, stderr bytes.Buffer
 
 	cmd := exec.Command(raw[0], raw[1:]...)
@@ -34,15 +45,10 @@ func ExecWithInput(raw []string, stdin []byte) (string, string, error) {
 	return string(stdout.Bytes()), string(stderr.Bytes()), nil
 }
 
-func getOutput(raw []string) string {
-	cmd := exec.Command(raw[0], raw[1:]...)
-	stdout, err := cmd.Output()
-
-	if err != nil {
-		log.Fatalf("Unable to exec %s: %s", raw, err)
-	}
-
-	return string(stdout)
+// Sanitizes a string so it is safe to use as a shell argument. Only characters that are valid in zfs datasets, snapshots or properties are permitted.
+func Sanitize(raw string) string {
+	re := regexp.MustCompile(`[^a-zA-Z0-9\-_:\.%,]`)
+	return re.ReplaceAllString(raw, "")
 }
 
 // Utility function to find a string in the first 7 characters of the haystack as the headers of the zpool status command are padded to a constant display width
