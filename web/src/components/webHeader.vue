@@ -7,7 +7,7 @@
 			<b-nav-item to="/data">Data</b-nav-item>
 			<b-nav-item to="/about">About</b-nav-item>
 		</b-navbar-nav>
-		<b-nav-text class="ml-auto">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
+		<b-nav-text class="ml-auto" v-if="this.auth">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
 	</b-navbar>
 </template>
 

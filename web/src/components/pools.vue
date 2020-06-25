@@ -15,16 +15,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<b-card-group columns>
 		<div v-for="pool in pools" :key="pool.Name">
-			<b-card v-if="pool.State == 'ONLINE'" :title="pool.Name" :sub-title="pool.Status" :header="pool.State"
-					header-bg-variant="success" header-text-variant="white" border-variant="success">
-				<router-link :to="'/pool/' + pool.Name" class="stretched-link"></router-link>
-				<p></p>
-				<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
-				<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
-				<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
-			</b-card>
-			<b-card v-else :title="pool.Name" :sub-title="pool.Status" :header="pool.State"
-					header-bg-variant="secondary" header-text-variant="white" border-variant="secondary">
+			<b-card :title="pool.Name" :sub-title="pool.Status" :header="pool.State" :header-bg-variant="color(pool.State)"
+					:border-variant="color(pool.State)" header-text-variant="white">
 				<router-link :to="'/pool/' + pool.Name" class="stretched-link"></router-link>
 				<p></p>
 				<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
@@ -47,6 +39,16 @@ export default {
 		first: {}
 	}},
 	methods: {
+		color: function(state) {
+			let colors = {
+				"ONLINE":   "success",
+				"DEGRADED": "danger",
+				"FAULTED":  "secondary",
+				"UNAVAIL":  "secondary"
+			}
+
+			return colors[state];
+		}
 	},
 	mounted() {
 		fetch('/api/v0/pools')
