@@ -14,14 +14,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<div :class="{ hide: loading }">
 
-		<b-card :title="pool.Name" :sub-title="pool.State">
-			<b-card-text><b>status:</b> {{ pool.Status }} </b-card-text>
-			<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
+		<p></p>
+		<b-breadcrumb>
+			<b-breadcrumb-item href="/#/pools">Pools</b-breadcrumb-item>
+			<b-breadcrumb-item active>{{ pool.Name }}</b-breadcrumb-item>
+		</b-breadcrumb>
 
-			<b-card-text v-if='pool.See !== ""'><b>see:</b> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></b-card-text>
-			<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
-			<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
-		</b-card>
+		<pool-card :pool='pool'></pool-card>
+
+		<p></p>
 
 		<table>
 			<thead>
