@@ -7,8 +7,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
 	<table>
+		<caption>ZFS pool properties</caption>
 		<thead>
-			<th v-for="(value, index) in first"> {{ value.Name }} </th>
+			<th v-for="(value, index) in first" scope="col"> {{ value.Name }} </th>
 		</thead>
 		<tbody>
 			<tr v-for="item in pool[display]">

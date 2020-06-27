@@ -8,22 +8,23 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 
 	<div :class="{ hide: loading }">
-		<p class="poolInfo"><b class="infoHeader">name:</b> {{ pool.Name }} </p>
-		<p class="poolInfo"><b class="infoHeader">state:</b><rainbow-state :state="pool.State"></rainbow-state></p>
-		<p class="poolInfo"><b class="infoHeader">status:</b> {{ pool.Status }} </p>
-		<p class="poolInfo"><b class="infoHeader">action:</b> {{ pool.Action }} </p>
+		<p class="poolInfo"><strong class="infoHeader">name:</strong> {{ pool.Name }} </p>
+		<p class="poolInfo"><strong class="infoHeader">state:</strong><rainbow-state :state="pool.State"></rainbow-state></p>
+		<p class="poolInfo"><strong class="infoHeader">status:</strong> {{ pool.Status }} </p>
+		<p class="poolInfo"><strong class="infoHeader">action:</strong> {{ pool.Action }} </p>
 
-		<p class="poolInfo" v-if='pool.See !== ""'><b class="infoHeader">see:</b> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></p>
-		<p class="poolInfo"><b class="infoHeader">scan:</b> {{ pool.Scan }} </p>
+		<p class="poolInfo" v-if='pool.See !== ""'><strong class="infoHeader">see:</strong> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></p>
+		<p class="poolInfo"><strong class="infoHeader">scan:</strong> {{ pool.Scan }} </p>
 
 		<table>
+			<caption>ZFS pool info</caption>
 			<thead>
-				<th class="name">Name</th>
-				<th>State</th>
-				<th>Read</th>
-				<th>Write</th>
-				<th>Checksum</th>
-				<th></th>
+				<th scope="col" class="name">Name</th>
+				<th scope="col">State</th>
+				<th scope="col">Read</th>
+				<th scope="col">Write</th>
+				<th scope="col">Checksum</th>
+				<th scope="col"></th>
 			</thead>
 			<tbody>
 				<tr v-for="dev in pool.Containers">
@@ -37,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</tbody>
 		</table>
 
-		<p class="poolInfo"><b class="infoHeader">errors:</b> {{ pool.Errors }} </p>
+		<p class="poolInfo"><strong class="infoHeader">errors:</strong> {{ pool.Errors }} </p>
 	</div>
 
 	<!-- TODO: only use one API call here -->
