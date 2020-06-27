@@ -4,7 +4,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template><div>
-
 	<web-header></web-header>
 	
 	<b-container fluid="lg">
@@ -13,8 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 
 	<div :class="{ hide: loading }">
-
-		<p></p>
+		<br>
 		<b-breadcrumb>
 			<b-breadcrumb-item href="/#/pools">Pools</b-breadcrumb-item>
 			<b-breadcrumb-item active>{{ pool.Name }}</b-breadcrumb-item>
@@ -22,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<pool-card :pool='pool'></pool-card>
 
-		<p></p>
+		<br>
 
 		<table>
 			<thead>
@@ -57,7 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 export default {
-	name: "poolInfo",
+	name: 'poolInfo',
 	data() { return {
 		loading: true,
 		error: false,

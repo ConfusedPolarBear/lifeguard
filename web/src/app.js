@@ -73,7 +73,7 @@ Vue.filter('stripNewlines', function(raw) {
 
 const routes = [
 	{
-		path: "/home",
+		path: '/',
 		component: require('./components/home.vue').default
 	},
 	{
@@ -87,6 +87,10 @@ const routes = [
 	{
 		path: "/pool/:poolName",
 		component: require('./components/poolInfo.vue').default
+	},
+	{
+		path: '/logout',
+		component: require('./components/logout.vue').default
 	}
 ];
 

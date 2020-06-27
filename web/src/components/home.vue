@@ -1,16 +1,18 @@
 <template><div>
-
 	<web-header></web-header>
 
-	<div v-if="auth">
-	</div>
-	<div v-else>
-		<p>Status: {{ status }}</p>
+	<div v-if="!auth">
+		<b-form class="loginForm" @submit="login">
+			<b-alert variant="danger" :show="invalid">
+				Invalid credentials
+			</b-alert>
 
-		<input v-model="username" type="text" placeholder="Username"></input>
-		<input v-model="password" type="password" placeholder="Password"></input>
+			<h3>Login to Lifeguard</h3>
+			<b-form-input id="username" v-model="username" type="text" required placeholder="Username" @input="invalid=false"></b-form-input>
+			<b-form-input id="password" v-model="password" type="password" required placeholder="Password" @input="invalid=false"></b-form-input>
 
-		<input v-on:click="login" type="button" value="Login" id="login"></input>
+			<b-button type="submit" variant="primary">Login</b-button>
+		</b-form>
 	</div>
 </div></template>
 
@@ -21,27 +23,36 @@ export default {
 	data() {
 		return {
 			auth:     false,
-			username: '',
+			first:    true,
+			invalid:  false,
 			password: '',
-			status:   'Not logged in'
+			username: '',
 		}
 	},
 	methods: {
 		login: function(e) {
+			event.preventDefault();
+
 			apiClient.Login(this.username, this.password)
-			.then(this.updateLogin);
+			.then(this.update);
 		},
-		updateLogin: async function(first = true) {
+		update: async function() {
 			let info = await apiClient.GetInfo();
 			this.auth = info.Authenticated;
 
-			if (!first) {
-				this.status = this.auth ? 'Logged in' : 'Failed to login';
+			if (this.auth) {
+				this.$router.push('/pools');
 			}
+
+			if (!this.first) {
+				this.invalid = !this.auth;
+			}
+
+			this.first = false;
 		}
 	},
 	mounted() {
-		this.updateLogin();
+		this.update();
 	}
 }
 </script>

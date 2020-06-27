@@ -26,3 +26,13 @@ table {
 .hide {
 	display: none;
 }
+
+.loginForm {
+	margin: 0 auto;
+	margin-top: 40vh;
+	max-width: 30%;
+}
+
+input {
+	margin-bottom: 0.5em !important;
+}
