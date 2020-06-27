@@ -23,6 +23,10 @@ function Login(username, password) {
 	});
 }
 
+function Logout() {
+	return fetch('/api/v0/logout');
+}
+
 function GetInfo() {
 	return fetch('/api/v0/info')
 		.then(res => res.json());
@@ -31,5 +35,6 @@ function GetInfo() {
 export default {
 	Post: Post,
 	Login: Login,
+	Logout: Logout,
 	GetInfo: GetInfo
 }

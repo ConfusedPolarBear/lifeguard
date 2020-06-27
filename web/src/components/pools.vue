@@ -4,14 +4,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template><div>
-
 	<web-header></web-header>
 
 	<b-container fluid="lg">
 
 	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
-	<p></p>
 
+	<br>
 	<b-card-group columns>
 		<div v-for="p in pools" :key="p.Name">
 			<pool-card :pool="p" clickable='true' ></pool-card>
@@ -23,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 export default {
-	name: "pools",
+	name: 'pools',
 	data() { return {
 		loading: true,
 		error: false,

@@ -74,6 +74,7 @@ func Setup() {
 
 	// Security
 	http.HandleFunc("/api/v0/authenticate", loginHandler)
+	http.HandleFunc("/api/v0/logout", logoutHandler)
 
 	// Pool
 	http.HandleFunc("/api/v0/pool", getPoolHandler)
@@ -161,6 +162,20 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	}
 
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	session := getSession(r)
+	session.Values = nil
+
+	err := session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Unable to save session: %s", err)
+		return
+	}
+
+	http.Error(w, "", http.StatusOK)
 }
 
 func getAuth(r *http.Request) (string, string) {
