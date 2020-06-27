@@ -16,6 +16,8 @@
 		"webpack-dev-server": "^3.11.0"
 	},
 	"dependencies": {
+		"bootstrap": "^4.5.0",
+		"bootstrap-vue": "^2.15.0",
 		"vue": "^2.6.11",
 		"vue-router": "^3.3.4"
 	}

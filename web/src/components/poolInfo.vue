@@ -4,17 +4,24 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template><div>
+
+	<web-header></web-header>
+	
+	<b-container fluid="lg">
+
 	<p v-if="loading">Loading..</p>
 	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
 
 	<div :class="{ hide: loading }">
-		<p class="poolInfo"><strong class="infoHeader">name:</strong> {{ pool.Name }} </p>
-		<p class="poolInfo"><strong class="infoHeader">state:</strong><rainbow-state :state="pool.State"></rainbow-state></p>
-		<p class="poolInfo"><strong class="infoHeader">status:</strong> {{ pool.Status }} </p>
-		<p class="poolInfo"><strong class="infoHeader">action:</strong> {{ pool.Action }} </p>
+		<p></p>
+		<b-breadcrumb>
+			<b-breadcrumb-item href="/#/pools">Pools</b-breadcrumb-item>
+			<b-breadcrumb-item active>{{ pool.Name }}</b-breadcrumb-item>
+		</b-breadcrumb>
 
-		<p class="poolInfo" v-if='pool.See !== ""'><strong class="infoHeader">see:</strong> <a :href='pool.See' target='_blank'>{{ pool.See }}</a></p>
-		<p class="poolInfo"><strong class="infoHeader">scan:</strong> {{ pool.Scan }} </p>
+		<pool-card :pool='pool'></pool-card>
+
+		<p></p>
 
 		<table>
 			<caption>ZFS pool info</caption>
@@ -38,12 +45,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</tbody>
 		</table>
 
-		<p class="poolInfo"><strong class="infoHeader">errors:</strong> {{ pool.Errors }} </p>
+		<b-table striped hover :items="pool.Containers" :fields="['Name','Level','State','Read','Write','Cksum']"></b-table>
 	</div>
 
 	<!-- TODO: only use one API call here -->
 	<pool-data :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
 	<pool-data :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+
+	</b-container>
 </div></template>
 
 <script>

@@ -1,4 +1,12 @@
 <template><div>
-<p>Lifeguard is distributed under the terms of the <a href="https://www.gnu.org/licenses/agpl-3.0.txt">AGPL version 3</a>.</p>
-<p>Source code is available from <a href="https://github.com/ConfusedPolarBear/lifeguard">here</a>.</p>
+
+	<web-header></web-header>
+
+	<b-jumbotron fluid header="LifeGuard" lead="The one-stop shop for ZFS drive management">
+	<hr class="my-4">
+	
+	<b-button variant="primary" href="https://github.com/ConfusedPolarBear/lifeguard">Source Code</b-button>
+	<b-button variant="success" href="https://www.gnu.org/licenses/agpl-3.0.txt">License AGPL v3</b-button>
+	
+	</b-jumbotron>
 </div></template>

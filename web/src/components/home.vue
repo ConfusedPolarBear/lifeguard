@@ -1,7 +1,8 @@
 <template><div>
+
+	<web-header></web-header>
+
 	<div v-if="auth">
-		<pools></pools>
-		<p>Version: <code>{{ version }} {{ commit }}</code></p>
 	</div>
 	<div v-else>
 		<p>Status: {{ status }}</p>
@@ -20,8 +21,6 @@ export default {
 	data() {
 		return {
 			auth:     false,
-			version:  '',
-			commit:   '',
 			username: '',
 			password: '',
 			status:   'Not logged in'
@@ -38,11 +37,6 @@ export default {
 
 			if (!first) {
 				this.status = this.auth ? 'Logged in' : 'Failed to login';
-			}
-
-			if (this.auth) {
-				this.version = info.ZFSVersion;
-				this.commit = info.Commit;
 			}
 		}
 	},
