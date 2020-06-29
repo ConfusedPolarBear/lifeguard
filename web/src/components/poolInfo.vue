@@ -28,10 +28,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     			<b-progress-bar :label="pool.Datasets[0]['used'].Value | prettyPrint('used')" :value="pool.Datasets[0]['used'].Value / 1000" variant="warning"></b-progress-bar>
       			<b-progress-bar :label="pool.Datasets[0]['avail'].Value | prettyPrint('avail')" :value="pool.Datasets[0]['avail'].Value / 1000" variant="success"></b-progress-bar>
     		</b-progress>
-		</b-card>
 
-		<!-- TODO: remove level column and indent the row name -->
-		<b-table striped hover :items="pool.Containers" :fields="['Name','Level','State','Read','Write','Cksum']"></b-table>
+			<br />
+
+			<!-- TODO: indent the container name per level -->
+			<b-table outlined hover :fields="['Name',{ key: 'state', label: 'State' },'Read','Write','Cksum']" :items="pool.Containers">
+				<template v-slot:cell(state)="data">
+        			<rainbow-state :state="data.item.State"></rainbow-state>
+    			</template>
+			</b-table>
+		</b-card>
 	</div>
 
 	<pool-data :pool="pool" :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
