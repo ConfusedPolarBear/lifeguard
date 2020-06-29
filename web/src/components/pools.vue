@@ -7,13 +7,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<web-header></web-header>
 
 	<b-container fluid="lg">
-
-	<p v-if="error">Unable to connect to the server. Verify it is running and that you are logged in.</p>
+	<b-alert variant="danger" :show="error">
+		Unable to connect to the server. Verify it is running and that you are logged in.
+	</b-alert>
 
 	<br>
 	<b-card-group columns>
 		<div v-for="p in pools" :key="p.Name">
-			<pool-card :pool="p" clickable='true' ></pool-card>
+			<pool-card :pool="p" :clickable="true"></pool-card>
 		</div>
 	</b-card-group>
 
@@ -24,28 +25,29 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 export default {
 	name: 'pools',
 	data() { return {
-		loading: true,
 		error: false,
 		pools: [],
-		first: {}
+		interval: 0,
 	}},
 	methods: {
+		refresh: function() {
+			fetch('/api/v0/pools')
+			.then(res => res.json())
+			.then(res => {
+				this.pools = res;
+			})
+			.catch(e => {
+				console.error(e);
+				this.error = true;
+			});
+		}
 	},
 	mounted() {
-		fetch('/api/v0/pools')
-		.then(res => res.json())
-		.then(res => {
-			// The first row is needed to setup the column names
-			this.pools = res;
-			this.first = this.pools[0].Properties[0]
-		})
-		.catch(e => {
-			console.error(e);
-			this.error = true;
-		})
-		.finally(() => {
-			this.loading = false;
-		})
+		this.refresh();
+		this.interval = setInterval(this.refresh, 10 * 1000);
+	},
+	beforeDestroy() {
+		clearInterval(this.interval);
 	}
 };
 </script>

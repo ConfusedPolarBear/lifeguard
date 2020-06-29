@@ -9,7 +9,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<b-container fluid="lg">
 
 	<p v-if="loading">Loading..</p>
-	<p v-if="error">There was an error loading pool {{ poolName }}. Verify you are logged in.</p>
+	<b-alert variant="danger" :show="error">
+		Unable to connect to the server. Verify it is running and that you are logged in.
+	</b-alert>
 
 	<div :class="{ hide: loading }">
 		<br>
@@ -28,34 +30,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     		</b-progress>
 		</b-card>
 
-		<table>
-			<caption>ZFS pool info</caption>
-			<thead>
-				<th scope="col" class="name">Name</th>
-				<th scope="col">State</th>
-				<th scope="col">Read</th>
-				<th scope="col">Write</th>
-				<th scope="col">Checksum</th>
-				<th scope="col"></th>
-			</thead>
-			<tbody>
-				<tr v-for="dev in pool.Containers">
-					<td :style='{ "padding-left": dev.Level * 10 }'> {{ dev.Name }} </td>
-					<td> <rainbow-state :state="dev.State"></rainbow-state> </td>
-					<td> {{ dev.Read }} </td>
-					<td> {{ dev.Write }} </td>
-					<td> {{ dev.Cksum }} </td>
-					<td> {{ dev.Status }} </td>
-				</tr>
-			</tbody>
-		</table>
-
+		<!-- TODO: remove level column and indent the row name -->
 		<b-table striped hover :items="pool.Containers" :fields="['Name','Level','State','Read','Write','Cksum']"></b-table>
 	</div>
 
-	<!-- TODO: only use one API call here -->
-	<pool-data :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
-	<pool-data :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+	<pool-data :pool="pool" :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
+	<pool-data :pool="pool" :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
 
 	</b-container>
 </div></template>
@@ -67,19 +47,29 @@ export default {
 		loading: true,
 		error: false,
 		poolName: this.$route.params.poolName,
-		pool: {}
+		pool: {},
+		interval: 0,
 	} },
-	created() {
-		fetch('/api/v0/pool?pool=' + this.poolName)
-		.then(res => res.json())
-		.then(res => (this.pool = res))
-		.catch(e => {
-			console.error(e);
-			this.error = true;
-		})
-		.finally(() => {
-			this.loading = false;
-		})
+	methods: {
+		refresh: function() {
+			fetch('/api/v0/pool?pool=' + this.poolName)
+			.then(res => res.json())
+			.then(res => (this.pool = res))
+			.catch(e => {
+				console.error(e);
+				this.error = true;
+			})
+			.finally(() => {
+				this.loading = false;
+			});
+		}
+	},
+	mounted() {
+		this.refresh();
+		this.interval = setInterval(this.refresh, 10 * 1000);
+	},
+	beforeDestroy() {
+		clearInterval(this.interval);
 	}
 };
 </script>

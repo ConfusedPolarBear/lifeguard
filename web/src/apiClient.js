@@ -27,6 +27,7 @@ function Logout() {
 	return fetch('/api/v0/logout');
 }
 
+// TODO: return cached info unless we just signed in or out
 function GetInfo() {
 	return fetch('/api/v0/info')
 		.then(res => res.json());

@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func areEqual(name string, expected string, actual string, test *testing.T) {
+func areEqual(name string, expected interface{}, actual interface{}, test *testing.T) {
 	if expected != actual {
 		test.Errorf("Error testing %s - expected %s, was %s.", name, expected, actual)
 	}
@@ -198,6 +198,7 @@ errors: No known data errors`
 	areEqual("resilvering action", "Wait for the resilver to complete.", parsed.Action, t)
 	areEqual("resilvering see", "", parsed.See, t)
 	areEqual("resilvering scan", "resilver in progress since Wed May 27 01:32:44 2020\n23.5G scanned at 2.61G/s, 228M issued at 25.3M/s, 23.5G total\n236M resilvered, 0.95% done, 0 days 00:15:40 to go", parsed.Scan, t)
+	areEqual("resilvering scan percentage", 0.95, parsed.Scanned, t)
 	areEqual("resilvering errors", "No known data errors", parsed.Errors, t)
 	areEqual("resilvering raw", output, parsed.Raw, t)
 

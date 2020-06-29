@@ -6,7 +6,9 @@ package zpool
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 	"strings"
+	"regexp"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
@@ -63,14 +65,25 @@ func ParseZpoolStatus(raw string) *Pool {
 	poolMap["raw"] = raw
 
 	pool = &Pool {
-		Name:   poolMap["pool"],
-		State:  poolMap["state"],
-		Status: useDefault(poolMap["status"], "OK"),
-		Action: useDefault(poolMap["action"], "No action needed"),
-		See:    poolMap["see"],
-		Scan:   poolMap["scan"],
-		Errors: poolMap["errors"],
-		Raw:    poolMap["raw"],
+		Name:    poolMap["pool"],
+		State:   poolMap["state"],
+		Status:  useDefault(poolMap["status"], "OK"),
+		Action:  useDefault(poolMap["action"], "No action needed"),
+		See:     poolMap["see"],
+		Scan:    poolMap["scan"],
+		Scanned: 0.0,
+		Errors:  poolMap["errors"],
+		Raw:     poolMap["raw"],
+	}
+
+	// Search for a percent in the scan output and if found, save the scan percentage to the scanned field
+	// This regex searches for (any numbers or a period) followed by a percent sign.
+	percentRegex := regexp.MustCompile("[0-9.]+%")
+	if percentRegex.MatchString(pool.Scan) {
+		raw := percentRegex.FindString(pool.Scan)
+		raw = strings.ReplaceAll(raw, "%", "")
+
+		pool.Scanned, _ = strconv.ParseFloat(raw, 64)
 	}
 
 	if config.GetBool("debug.parse") {
