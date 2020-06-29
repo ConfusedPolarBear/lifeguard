@@ -22,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</tbody>
 	</table>
 
-	<b-table striped hover :items="pool[display]"></b-table>
+	<b-table striped hover :items="pool[display]" :fields="fields"></b-table>
 </div></template>
 
 <script>
@@ -43,7 +43,8 @@ export default {
 		error: false,
 		url: '',
 		pool: [],
-		first: {}
+		first: {},
+		fields: []
 	}},
 	methods: {
 	},
@@ -61,6 +62,18 @@ export default {
 		.catch(e => {
 			console.error(e);
 			this.error = true;
+			return;
+		})
+
+		fetch('/api/v0/properties?type=' + this.display)
+		.then(res => res.json())
+		.then(res => {
+			this.fields = res;
+		})
+		.catch(e => {
+			console.error(e);
+			this.error = true;
+			return;
 		})
 		.finally(() => {
 			this.loading = false;

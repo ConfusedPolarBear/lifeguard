@@ -13,6 +13,6 @@ type Property struct {
 type Data struct {
 	Name       string
 	Type       string
-	Properties []*Property
-	Internal   []*Property
+	Properties map[string]*Property
+	Internal   map[string]*Property
 }

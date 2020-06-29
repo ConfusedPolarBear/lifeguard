@@ -30,6 +30,13 @@ var (
 	credentials = make(map[string]string)
 )
 
+// This is used by getPropertiesHandler to construct the fields object. The custom JSON fields are needed because go won't export struct members with a lowercase name.
+// However, bootstrap vue requires the fields to be in dromedary case (first letter lowercase)
+type Column struct {
+	Key string		`json:"key"`
+	Sortable bool	`json:"sortable"`
+}
+
 func Setup() {
 	key = []byte(config.GetString("security.session_key"))
 
@@ -79,6 +86,7 @@ func Setup() {
 	// Pool
 	http.HandleFunc("/api/v0/pool", getPoolHandler)
 	http.HandleFunc("/api/v0/pools", getAllPoolsHandler)
+	http.HandleFunc("/api/v0/properties", getPropertyListHandler)
 
 	SetupInfo()
 	SetupDataset()
@@ -137,6 +145,39 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 
 	parsed := zpool.ParsePool(pool, true)
 	w.Write(zpool.Encode(parsed))
+}
+
+// This handler returns the properties the user has specified in the config.ini file to sort the displayed columns correctly
+func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
+	if !checkSessionAuth(r, w) {
+		return
+	}
+
+	name, ok := GetParameter(w, r, "type")
+	if !ok {
+		return
+	}
+
+	props := ""
+	if name == "Datasets" {
+		props = config.GetString("properties.dataset")
+	} else if name == "Snapshots" {
+		props = config.GetString("properties.snapshot")
+	} else {
+		http.Error(w, "Unknown value for type parameter", http.StatusBadRequest)
+		return
+	}
+
+	var columns []*Column
+
+	for _, col := range strings.Split(props, ",") {
+		columns = append(columns, &Column {
+			Key: col,
+			Sortable: true,
+		})
+	}
+
+	w.Write(zpool.Encode(columns))
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

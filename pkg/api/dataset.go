@@ -16,6 +16,7 @@ import (
 )
 
 func SetupDataset() {
+	// Retrieves information for a dataset or snapshot
 	http.HandleFunc("/api/v0/data", getDataInfoHandler)
 
 	http.HandleFunc("/api/v0/key/load", loadKeyHandler)
@@ -38,7 +39,7 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 	// Grab the keylocation so the load key button can be conditionally enabled
 	saved = &zpool.Data {
 		Name:       name,
-		Type:       zpool.GetProperties(name, "zfs", "", "type")[0][0].Value,
+		Type:       zpool.GetProperties(name, "zfs", "", "type")[0]["type"].Value,
 		Properties: zpool.GetProperties(name, "zfs", "", config.GetString("properties.dataset"))[0],
 		Internal:   zpool.GetProperties(name, "zfs", "", "keylocation")[0],
 	}

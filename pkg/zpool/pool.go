@@ -100,8 +100,8 @@ func ListZpools() []string {
 	return strings.Split(MustExec(cmd), "\n")
 }
 
-func GetProperties(name string, which string, filter string, props string) [][]*Property {
-	var pulled [][]*Property
+func GetProperties(name string, which string, filter string, props string) []map[string]*Property {
+	var pulled []map[string]*Property
 
 	props = Sanitize(props)
 	rawProps := strings.Split(props, ",")
@@ -149,7 +149,7 @@ func GetProperties(name string, which string, filter string, props string) [][]*
 			cleaned := strings.Replace(prop, "\n", "", 1)		// The last property will have a newline at the end but to be safe, we'll clean every returned value
 
 			if len(pulled) <= number {
-				var blank []*Property
+				blank := make(map[string]*Property)
 				pulled = append(pulled, blank)
 			}
 
@@ -163,11 +163,11 @@ func GetProperties(name string, which string, filter string, props string) [][]*
 				hmac = crypto.GenerateHMAC(cleaned)
 			}
 
-			pulled[number] = append(pulled[number], &Property {
+			pulled[number][name] = &Property {
 				Name:  name,
 				Value: cleaned,
 				HMAC:  hmac,
-			})
+			}
 		}
 	}
 
@@ -199,7 +199,7 @@ func ParsePool(name string, includeChildren bool) *Pool {
 	out := MustExec(cmd)
 
 	pool := ParseZpoolStatus(out)
-	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool"))
+	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool"))[0]
 
 	/*
 	 * This is optional since parsing all snapshots is expensive if many are present.

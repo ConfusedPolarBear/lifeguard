@@ -21,12 +21,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<pool-card :pool='pool'></pool-card>
 
 		<br>
-
 		<b-card>
 			<b-progress height="2rem">
-    			<b-progress-bar :label="pool.Datasets[0][1].Value | prettyPrint(pool.Datasets[0][1].Name)" :value="pool.Datasets[0][1].Value / 1000" variant="warning"></b-progress-bar>
-      			<b-progress-bar :label="pool.Datasets[0][4].Value | prettyPrint(pool.Datasets[0][4].Name)" :value="pool.Datasets[0][4].Value / 1000" variant="info"></b-progress-bar>
-      			<b-progress-bar :label="pool.Datasets[0][2].Value | prettyPrint(pool.Datasets[0][2].Name)" :value="pool.Datasets[0][2].Value / 1000" variant="success"></b-progress-bar>
+    			<b-progress-bar :label="pool.Datasets[0]['used'].Value | prettyPrint('used')" :value="pool.Datasets[0]['used'].Value / 1000" variant="warning"></b-progress-bar>
+      			<b-progress-bar :label="pool.Datasets[0]['avail'].Value | prettyPrint('avail')" :value="pool.Datasets[0]['avail'].Value / 1000" variant="success"></b-progress-bar>
     		</b-progress>
 		</b-card>
 
