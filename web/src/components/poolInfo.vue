@@ -22,14 +22,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<pool-card :pool='pool'></pool-card>
 
-		<br>
-		<b-card>
+		<br><hr><br>
+
+		<b-card header="Devices">
 			<b-progress height="2rem">
     			<b-progress-bar :label="pool.Datasets[0]['used'].Value | prettyPrint('used')" :value="pool.Datasets[0]['used'].Value / 1000" variant="warning"></b-progress-bar>
       			<b-progress-bar :label="pool.Datasets[0]['avail'].Value | prettyPrint('avail')" :value="pool.Datasets[0]['avail'].Value / 1000" variant="success"></b-progress-bar>
     		</b-progress>
 
-			<br />
+			<br>
 
 			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'state', label: 'State' },'Read','Write','Cksum']" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
@@ -40,10 +41,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     			</template>
 			</b-table>
 		</b-card>
-	</div>
 
-	<pool-data :pool="pool" :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
-	<pool-data :pool="pool" :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+		<br>
+		<pool-data :pool="pool" :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
+		<br>
+		<pool-data :pool="pool" :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+	</div>
 
 	</b-container>
 </div></template>

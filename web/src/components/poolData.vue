@@ -4,7 +4,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <template><div>
-	<b-table striped hover :items="pool[display]" :fields="fields"></b-table>
+	<b-card :header="display">
+		<b-table outlined hover :items="pool[display]" :fields="fields"></b-table>
+	</b-card>
 </div></template>
 
 <script>
