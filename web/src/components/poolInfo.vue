@@ -31,8 +31,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<br />
 
-			<!-- TODO: indent the container name per level -->
-			<b-table outlined hover :fields="['Name',{ key: 'state', label: 'State' },'Read','Write','Cksum']" :items="pool.Containers">
+			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'state', label: 'State' },'Read','Write','Cksum']" :items="pool.Containers">
+				<template v-slot:cell(name)="data">
+        			<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
+    			</template>
 				<template v-slot:cell(state)="data">
         			<rainbow-state :state="data.item.State"></rainbow-state>
     			</template>
