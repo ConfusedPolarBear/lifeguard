@@ -20,6 +20,7 @@ func SetupDataset() {
 	http.HandleFunc("/api/v0/data", getDataInfoHandler)
 
 	http.HandleFunc("/api/v0/key/load", loadKeyHandler)
+	http.HandleFunc("/api/v0/key/unload", unloadKeyHandler)
 
 	http.HandleFunc("/api/v0/pool/scrub", scrubHandler)
 }
@@ -48,7 +49,8 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
-	if !checkSessionAuth(r, w) {
+	username := getUsername(r, w)
+	if username == "" {
 		return
 	}
 
@@ -79,16 +81,44 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: fix username
-	log.Println(fmt.Sprintf("%s loaded key for %s", "UNDEFINED", name))
+	log.Println(fmt.Sprintf("%s loaded key for %s", username, name))
+	http.Error(w, "", http.StatusOK)
+}
+
+func unloadKeyHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsername(r, w)
+	if username == "" {
+		return
+	}
+
+	name, okName := GetHMAC(w, r)
+	if !okName {
+		return
+	}
+
+	stderr, err := zpool.UnloadKey(name)
+	if err != nil {
+		if strings.Index(stderr, "is busy") != -1 {
+			http.Error(w, "Dataset is mounted", http.StatusBadRequest)
+
+		} else {
+			log.Printf("Unable to unload key for %s: %s. %s", name, err, stderr)
+			http.Error(w, "An error occurred, check the server log for more details.", http.StatusBadRequest)
+		}
+
+		return
+	}
+
+	log.Println(fmt.Sprintf("%s unloaded key for %s", username, name))
 	http.Error(w, "", http.StatusOK)
 }
 
 func scrubHandler(w http.ResponseWriter, r *http.Request) {
-	if !checkSessionAuth(r, w) {
+	username := getUsername(r, w)
+	if username == "" {
 		return
 	}
-
+	
 	name, ok := GetHMAC(w, r)
 	if !ok {
 		return
@@ -103,7 +133,6 @@ func scrubHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: fix username
-	log.Println(fmt.Sprintf("%s started scrub for pool %s", "UNDEFINED", name))
+	log.Println(fmt.Sprintf("%s started scrub for pool %s", username, name))
 	http.Error(w, "", http.StatusOK)
 }

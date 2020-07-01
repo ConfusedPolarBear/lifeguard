@@ -243,6 +243,13 @@ func LoadKey(dataset string, passphrase string) (string, error) {
 	return stderr, err
 }
 
+func UnloadKey(dataset string) (string, error) {
+	cmd := append(cmdUnloadKey, dataset)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
+}
+
 func Scrub(pool string) (string, error) {
 	cmd := append(cmdScrub, pool)
 	_, stderr, err := Exec(cmd)

@@ -7,12 +7,15 @@ package zpool
 const cmdZpool = "/sbin/zpool"
 const cmdZfs   = "/sbin/zfs"
 
-// pool.go
+// Basic information retrieval operations
 var cmdGetVersion   = []string { cmdZpool, "version" }
+var cmdPoolStatus   = []string { cmdZpool, "status" }
 var cmdListDatasets = []string { cmdZfs, "list", "-p", "-H", "-o" }
 var cmdListPools    = []string { cmdZpool, "list", "-p", "-H", "-o" }
-var cmdLoadKey      = []string { cmdZfs, "load-key" }
-var cmdPoolStatus   = []string { cmdZpool, "status" }
 
-// pool.go commands without zfs allow support
+// Cryptographic operations
+var cmdLoadKey      = []string { cmdZfs, "load-key" }
+var cmdUnloadKey      = []string { cmdZfs, "unload-key" }
+
+// Commands without zfs allow support
 var cmdScrub        = []string { "sudo", cmdZpool, "scrub" }

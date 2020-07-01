@@ -15,7 +15,7 @@ func SetupInfo() {
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
-	auth := checkSessionAuthQuiet(r, w)
+	auth := checkSessionAuthQuiet(r)
 	info := make(map[string]interface{})
 
 	info["Product"] = "Lifeguard"

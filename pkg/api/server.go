@@ -1,8 +1,6 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// TODO: save auth info in the session (username, 2fa, etc)
-
 package api
 
 import (
@@ -183,9 +181,11 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	session := getSession(r)
 
-	username, password := getAuth(r)
-	auth := checkAuth(username, password)
+	sentUsername, password := getAuth(r)
+	auth, username := checkAuth(sentUsername, password)
+	
 	session.Values["authenticated"] = auth
+	session.Values["username"] = username
 
 	err := session.Save(r, w)
 	if err != nil {
@@ -199,10 +199,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "OK", http.StatusOK)
 
 	} else {
-		log.Printf("WARNING %s failed to authenticate as %s", r.RemoteAddr, username)
+		log.Printf("WARNING %s failed to authenticate as %s", r.RemoteAddr, sentUsername)
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	}
-
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -234,29 +233,29 @@ func getAuth(r *http.Request) (string, string) {
 	return username, password
 }
 
-func checkAuth(username string, password string) (bool) {
+func checkAuth(username string, password string) (bool, string) {
 	goodUsername := true
-	knownGood, ok := credentials[username]
+	loadedHash, ok := credentials[username]
 
 	if !ok {
 		log.Printf("Unknown username %s", username)
 
 		// Prevent user enumeration attacks
-		knownGood = "$2a$12$000000000000.0000000000000000000000000000000000000000"
+		loadedHash = "$2a$12$000000000000.0000000000000000000000000000000000000000"
 		goodUsername = false
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(knownGood), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(loadedHash), []byte(password))
 
 	if err != nil {
 		if goodUsername {
 			log.Printf("Incorect password provided for %s", username)
 		}
 
-		return false
+		return false, ""
 	}
 
-	return true
+	return true, username
 }
 
 func getSession(r *http.Request) (*sessions.Session) {
@@ -268,7 +267,7 @@ func getSession(r *http.Request) (*sessions.Session) {
 	return session
 }
 
-func checkSessionAuthInternal(r *http.Request, w http.ResponseWriter) (bool) {
+func checkSessionAuthInternal(r *http.Request) (bool) {
 	session := getSession(r)
 
 	if auth, ok := session.Values["authenticated"].(bool); !ok || !auth {
@@ -279,16 +278,38 @@ func checkSessionAuthInternal(r *http.Request, w http.ResponseWriter) (bool) {
 	return true
 }
 
-func checkSessionAuthQuiet(r *http.Request, w http.ResponseWriter) (bool) {
-	return checkSessionAuthInternal(r, w)
+func checkSessionAuthQuiet(r *http.Request) (bool) {
+	return checkSessionAuthInternal(r)
 }
 
 func checkSessionAuth(r *http.Request, w http.ResponseWriter) (bool) {
-	auth := checkSessionAuthInternal(r, w)
+	auth := checkSessionAuthInternal(r)
 
 	if !auth {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 	}
 
 	return auth
+}
+
+func getUsernameInternal(r *http.Request) (string) {
+	if !checkSessionAuthQuiet(r) {
+		return ""
+	}
+
+	return getSession(r).Values["username"].(string)
+}
+
+func getUsernameQuiet(r *http.Request) string {
+	return getUsernameInternal(r)
+}
+
+func getUsername(r *http.Request, w http.ResponseWriter) string {
+	username := getUsernameInternal(r)
+
+	if username == "" {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+	}
+
+	return username
 }

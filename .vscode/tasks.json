@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make and upload",
+            "command": "make && make archive && ssh zfstest.lab \"pkill lifeguard; cd lifeguard && tar -xzf - && ./lifeguard\" < lifeguard.tar.gz",
+            "type": "shell",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
