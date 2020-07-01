@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<br>
 
-			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'state', label: 'State' },'Read','Write','Cksum']" :items="pool.Containers">
+			<b-table outlined hover :fields="poolFields" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
         			<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
     			</template>
@@ -47,7 +47,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<br>
 		<pool-data :pool="pool" :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
 	</div>
-
 	</b-container>
 </div></template>
 
@@ -59,6 +58,13 @@ export default {
 		error: false,
 		poolName: this.$route.params.poolName,
 		pool: {},
+		poolFields: [
+			{ key: 'name', label: 'Name' },
+			{ key: 'state', label: 'State' },
+			'Read',
+			'Write',
+			'Cksum'
+		],
 		interval: 0,
 	} },
 	methods: {
