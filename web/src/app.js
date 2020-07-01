@@ -9,7 +9,6 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
-import poolData from './components/poolData.vue';
 import poolCard from './components/poolCard.vue'
 import webHeader from './components/webHeader.vue';
 
@@ -22,7 +21,6 @@ Vue.use(IconsPlugin);
 
 Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
-Vue.component('pool-data', poolData);
 Vue.component('pool-card', poolCard);
 Vue.component('web-header', webHeader);
 

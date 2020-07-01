@@ -43,9 +43,42 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</b-card>
 
 		<br>
-		<pool-data :pool="pool" :poolName="poolName" :display="'Datasets'" :path="'dataset'"></pool-data>
+		<b-card header="Datasets">
+			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'mounted', label: 'Mounted' },{ key: 'used', label: 'Used' },{ key: 'avail', label: 'Avail' }]" :items="pool.Datasets">
+				<template v-slot:cell(name)="data">
+        			{{ data.item.name.Value }}
+    			</template>
+				<template v-slot:cell(mounted)="data">
+        			{{ data.item.mounted.Value }}
+    			</template>
+				<template v-slot:cell(avail)="data">
+        			{{ data.item.avail.Value | prettyPrint('avail')}}
+    			</template>
+				<template v-slot:cell(used)="data">
+        			{{ data.item.used.Value | prettyPrint('used')}}
+    			</template>
+			</b-table>
+		</b-card>
+
 		<br>
-		<pool-data :pool="pool" :poolName="poolName" :display="'Snapshots'" :path="'snapshot'"></pool-data>
+		<b-card header="Snapshots">
+			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'used', label: 'Used' },{ key: 'avail', label: 'Avail' },{ key: 'refer', label: 'Refer' }]" :items="pool.Snapshots">
+				<template v-slot:cell(name)="data">
+        			{{ data.item.name.Value }}
+    			</template>
+				<template v-slot:cell(avail)="data">
+        			{{ data.item.avail.Value | prettyPrint('avail')}}
+    			</template>
+				<template v-slot:cell(used)="data">
+        			{{ data.item.used.Value | prettyPrint('used')}}
+    			</template>
+				<template v-slot:cell(refer)="data">
+        			{{ data.item.refer.Value | prettyPrint('refer')}}
+    			</template>
+			</b-table>
+		</b-card>
+
+		<br>
 	</div>
 
 	</b-container>
