@@ -22,3 +22,5 @@ lifeguard.tar.gz
 web/dist/
 node_modules/
 *.swp
+
+.vscode/
