@@ -87,6 +87,10 @@ const routes = [
 		component: require('./components/poolInfo.vue').default
 	},
 	{
+		path: "/data",
+		component: require('./components/data.vue').default
+	},
+	{
 		path: '/logout',
 		component: require('./components/logout.vue').default
 	}
