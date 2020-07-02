@@ -47,6 +47,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<b-card header="Datasets">
 			<input type="text" placeholder="Filter" v-model="filter['Datasets']">
 			<b-table outlined hover :fields="fields['Datasets']" :items="pool.Datasets" :filter="filter['Datasets']">
+				<template v-slot:cell(mounted)="data">
+					<b-button variant="outline-secondary" size="sm" class="cellLeftColButton">{{ data.value.Value == "yes" ? 'Unmount' : 'Mount'}}</b-button>
+				</template>
 				<template v-slot:cell()="data">
 					{{ data.value.Value | prettyPrint(data.value.Name) }}
 				</template>

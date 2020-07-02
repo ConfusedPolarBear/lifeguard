@@ -1,36 +1,12 @@
-b.infoHeader {
-	display: inline-block;
-	padding-right: 5px;
-	text-align: right;
-	width: 60px;
-}
-
-p.poolInfo {
-	margin: 3px;
-}
-
-th {
-	text-align: left;
-	padding-right: 1.5em;
-}
-
-th.name {
-	min-width: 300px;
-}
-
-table {
-	margin-top: 1em;
-	margin-bottom: 1em;
-}
-
-caption, .hide {
-	display: none;
-}
-
 .loginForm {
 	margin: 0 auto;
 	margin-top: 40vh;
 	max-width: 30%;
+}
+
+.cellLeftColButton {
+	margin-top: -1em;
+	margin-bottom: -1em;
 }
 
 input {
