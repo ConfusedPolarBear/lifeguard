@@ -45,9 +45,12 @@ async function GetInfo() {
 	}
 }
 
+async function GetPool(id) {
+	return await fetch('/api/v0/pool?pool=' + id).then(res => res.json());
+}
+
 async function GetFields(table) {
-	return await fetch('/api/v0/properties?type=' + table)
-		.then(res => res.json());
+	return await fetch('/api/v0/properties?type=' + table).then(res => res.json());
 }
 
 export default {
@@ -55,5 +58,6 @@ export default {
 	Login: Login,
 	Logout: Logout,
 	GetInfo: GetInfo,
+	GetPool: GetPool,
 	GetFields: GetFields
 }

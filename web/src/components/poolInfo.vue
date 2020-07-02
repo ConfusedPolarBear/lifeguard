@@ -42,42 +42,26 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</b-table>
 		</b-card>
 
+		<!-- TODO: extract into component -->
 		<br>
 		<b-card header="Datasets">
-			<b-table outlined hover :fields="fields['Datasets']" :items="pool.Datasets">
-				<template v-slot:cell(name)="data">
-        			{{ data.item.name.Value }}
-    			</template>
-				<template v-slot:cell(mounted)="data">
-        			{{ data.item.mounted.Value }}
-    			</template>
-				<template v-slot:cell(avail)="data">
-        			{{ data.item.avail.Value | prettyPrint('avail')}}
-    			</template>
-				<template v-slot:cell(used)="data">
-        			{{ data.item.used.Value | prettyPrint('used')}}
-    			</template>
+			<input type="text" placeholder="Filter" v-model="filter['Datasets']">
+			<b-table outlined hover :fields="fields['Datasets']" :items="pool.Datasets" :filter="filter['Datasets']">
+				<template v-slot:cell()="data">
+					{{ data.value.Value | prettyPrint(data.value.Name) }}
+				</template>
 			</b-table>
 		</b-card>
 
 		<br>
 		<b-card header="Snapshots">
-			<b-table outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots">
-				<template v-slot:cell(name)="data">
-        			{{ data.item.name.Value }}
-    			</template>
-				<template v-slot:cell(avail)="data">
-        			{{ data.item.avail.Value | prettyPrint('avail')}}
-    			</template>
-				<template v-slot:cell(used)="data">
-        			{{ data.item.used.Value | prettyPrint('used')}}
-    			</template>
-				<template v-slot:cell(refer)="data">
-        			{{ data.item.refer.Value | prettyPrint('refer')}}
-    			</template>
+			<input type="text" placeholder="Filter" v-model="filter['Snapshots']">
+			<b-table outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots" :filter="filter['Snapshots']">
+				<template v-slot:cell()="data">
+					{{ data.value.Value | prettyPrint(data.value.Name) }}
+				</template>
 			</b-table>
 		</b-card>
-
 		<br>
 	</div>
 	</b-container>
@@ -103,27 +87,28 @@ export default {
 				'Cksum'
 			]
 		},
+		filter: {
+			'Datasets': '',
+			'Snapshots': ''
+		},
 		interval: 0,
 	} },
 	methods: {
 		refresh: async function() {
-			// TODO: move into ApiClient
-			fetch('/api/v0/pool?pool=' + this.poolName)
-			.then(res => res.json())
-			.then(res => (this.pool = res))
-			.catch(e => {
+			this.fields['Datasets']  = await ApiClient.GetFields('Datasets');
+			this.fields['Snapshots'] = await ApiClient.GetFields('Snapshots');
+
+			try {
+				this.pool = await ApiClient.GetPool(this.poolName);
+			} catch (e) {
 				console.error(e);
 				this.error = true;
-			})
-			.finally(() => {
+			} finally {
 				this.loading = false;
-			});
-
-			this.fields['Snapshots'] = await ApiClient.GetFields('Snapshots');
-			this.fields['Datasets']  = await ApiClient.GetFields('Datasets');
+			}
 		}
 	},
-	mounted() {
+	created() {
 		this.refresh();
 		this.interval = setInterval(this.refresh, 5 * 1000);
 	},
