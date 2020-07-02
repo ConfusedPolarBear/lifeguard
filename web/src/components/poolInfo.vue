@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<br>
 
-			<b-table outlined hover :fields="poolFields" :items="pool.Containers">
+			<b-table outlined hover :fields="fields['Pool']" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
         			<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
     			</template>
@@ -44,7 +44,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<br>
 		<b-card header="Datasets">
-			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'mounted', label: 'Mounted' },{ key: 'used', label: 'Used' },{ key: 'avail', label: 'Avail' }]" :items="pool.Datasets">
+			<b-table outlined hover :fields="fields['Datasets']" :items="pool.Datasets">
 				<template v-slot:cell(name)="data">
         			{{ data.item.name.Value }}
     			</template>
@@ -62,7 +62,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<br>
 		<b-card header="Snapshots">
-			<b-table outlined hover :fields="[{key: 'name', label: 'Name'},{ key: 'used', label: 'Used' },{ key: 'avail', label: 'Avail' },{ key: 'refer', label: 'Refer' }]" :items="pool.Snapshots">
+			<b-table outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots">
 				<template v-slot:cell(name)="data">
         			{{ data.item.name.Value }}
     			</template>
@@ -84,6 +84,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </div></template>
 
 <script>
+import ApiClient from '../apiClient.js';
+
 export default {
 	name: 'poolInfo',
 	data() { return {
@@ -91,17 +93,21 @@ export default {
 		error: false,
 		poolName: this.$route.params.poolName,
 		pool: {},
-		poolFields: [
-			{ key: 'name', label: 'Name' },
-			{ key: 'state', label: 'State' },
-			'Read',
-			'Write',
-			'Cksum'
-		],
+		fields: {
+			// TODO: Conditionally render the status column when at least one vdev member has data in that attribute
+			'Pool': [
+				'Name',
+				'State',
+				'Read',
+				'Write',
+				'Cksum'
+			]
+		},
 		interval: 0,
 	} },
 	methods: {
-		refresh: function() {
+		refresh: async function() {
+			// TODO: move into ApiClient
 			fetch('/api/v0/pool?pool=' + this.poolName)
 			.then(res => res.json())
 			.then(res => (this.pool = res))
@@ -112,6 +118,9 @@ export default {
 			.finally(() => {
 				this.loading = false;
 			});
+
+			this.fields['Snapshots'] = await ApiClient.GetFields('Snapshots');
+			this.fields['Datasets']  = await ApiClient.GetFields('Datasets');
 		}
 	},
 	mounted() {

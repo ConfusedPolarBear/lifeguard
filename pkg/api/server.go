@@ -168,10 +168,11 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 
 	var columns []*Column
 
+	// TODO: why is sorting by name broken?
 	for _, col := range strings.Split(props, ",") {
 		columns = append(columns, &Column {
 			Key: col,
-			Sortable: true,
+			Sortable: (col != "name"),
 		})
 	}
 

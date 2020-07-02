@@ -1,6 +1,8 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+let cachedInfo = {};
+
 function Post(url, body) {
 	// Convert a raw object into a multipart form
 	var data = new FormData();
@@ -14,28 +16,45 @@ function Post(url, body) {
 	});
 }
 
-function Login(username, password) {
-	return Post('/api/v0/authenticate', {
+async function Login(username, password) {
+	const res = await Post('/api/v0/authenticate', {
 		Username: username,
 		Password: password
-	}).then(res => {
-		return Promise.resolve(res.ok);
 	});
+
+	if (res.ok) {
+		cachedInfo = {};
+	}
+	
+	return Promise.resolve(res.ok);
 }
 
 function Logout() {
+	cachedInfo = {};
 	return fetch('/api/v0/logout');
 }
 
-// TODO: return cached info unless we just signed in or out
-function GetInfo() {
-	return fetch('/api/v0/info')
+async function GetInfo() {
+	if (cachedInfo.Authenticated !== undefined) {
+		return cachedInfo;
+	}
+
+	else {
+		cachedInfo = await fetch('/api/v0/info').then(res => res.json());
+		return cachedInfo;
+	}
+}
+
+async function GetFields(table) {
+	return await fetch('/api/v0/properties?type=' + table)
 		.then(res => res.json());
+
 }
 
 export default {
 	Post: Post,
 	Login: Login,
 	Logout: Logout,
-	GetInfo: GetInfo
+	GetInfo: GetInfo,
+	GetFields: GetFields
 }
