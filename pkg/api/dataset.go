@@ -18,11 +18,16 @@ import (
 func SetupDataset() {
 	// Retrieves information for a dataset or snapshot
 	http.HandleFunc("/api/v0/data", getDataInfoHandler)
+	http.HandleFunc("/api/v0/data/mount", mountHandler)
+	http.HandleFunc("/api/v0/data/unmount", unmountHandler)
 
+	// Load and unload encryption keys
 	http.HandleFunc("/api/v0/key/load", loadKeyHandler)
 	http.HandleFunc("/api/v0/key/unload", unloadKeyHandler)
 
+	// Start or pause a pool scrub
 	http.HandleFunc("/api/v0/pool/scrub", scrubHandler)
+	http.HandleFunc("/api/v0/pool/scrub/pause", scrubPauseHandler)
 }
 
 func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -128,11 +133,88 @@ func scrubHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("Unable to scrub pool %s: %s. %s", name, err, stderr)
-		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
+		http.Error(w, stderr, http.StatusBadRequest)
 
 		return
 	}
 
 	log.Println(fmt.Sprintf("%s started scrub for pool %s", username, name))
+	http.Error(w, "", http.StatusOK)
+}
+
+// TODO: dedup this code with scrubHandler?
+func scrubPauseHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsername(r, w)
+	if username == "" {
+		return
+	}
+	
+	name, ok := GetHMAC(w, r)
+	if !ok {
+		return
+	}
+
+	stderr, err := zpool.PauseScrub(name)
+
+	if err != nil {
+		log.Printf("Unable to pause scrubbing pool %s: %s. %s", name, err, stderr)
+		http.Error(w, stderr, http.StatusBadRequest)
+
+		return
+	}
+
+	log.Println(fmt.Sprintf("%s paused scrub for pool %s", username, name))
+	http.Error(w, "", http.StatusOK)
+}
+
+func mountHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsername(r, w)
+	if username == "" {
+		return
+	}
+	
+	name, ok := GetHMAC(w, r)
+	if !ok {
+		return
+	}
+
+	stderr, err := zpool.Mount(name)
+
+	if err != nil {
+		if strings.Index(stderr, "encryption key not loaded") != -1 {
+			http.Error(w, "Encryption key is not loaded", http.StatusBadRequest)
+		} else {
+			log.Printf("Unable to mount dataset %s: %s. %s", name, err, stderr)
+			http.Error(w, msgErrorOccurred, http.StatusBadRequest)
+		}
+
+		return
+	}
+
+	log.Println(fmt.Sprintf("%s mounted dataset %s", username, name))
+	http.Error(w, "", http.StatusOK)
+}
+
+func unmountHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsername(r, w)
+	if username == "" {
+		return
+	}
+	
+	name, ok := GetHMAC(w, r)
+	if !ok {
+		return
+	}
+
+	stderr, err := zpool.Unmount(name)
+
+	if err != nil {
+		log.Printf("Unable to unmount dataset %s: %s. %s", name, err, stderr)
+		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
+
+		return
+	}
+
+	log.Println(fmt.Sprintf("%s unmounted dataset %s", username, name))
 	http.Error(w, "", http.StatusOK)
 }

@@ -125,7 +125,7 @@ export default {
 	},
 	mounted() {
 		this.refresh();
-		this.interval = setInterval(this.refresh, 10 * 1000);
+		this.interval = setInterval(this.refresh, 5 * 1000);
 	},
 	beforeDestroy() {
 		clearInterval(this.interval);

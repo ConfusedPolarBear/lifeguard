@@ -84,6 +84,11 @@ func ParseZpoolStatus(raw string) *Pool {
 		raw = strings.ReplaceAll(raw, "%", "")
 
 		pool.Scanned, _ = strconv.ParseFloat(raw, 64)
+
+		// Determine if the pool scan is paused
+		if strings.Index(pool.Scan, "paused") != -1 {
+			pool.ScanPaused = true
+		}
 	}
 
 	if config.GetBool("debug.parse") {
@@ -252,6 +257,27 @@ func UnloadKey(dataset string) (string, error) {
 
 func Scrub(pool string) (string, error) {
 	cmd := append(cmdScrub, pool)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
+}
+
+func PauseScrub(pool string) (string, error) {
+	cmd := append(cmdPauseScrub, pool)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
+}
+
+func Mount(dataset string) (string, error) {
+	cmd := append(cmdMount, dataset)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
+}
+
+func Unmount(dataset string) (string, error) {
+	cmd := append(cmdUnmount, dataset)
 	_, stderr, err := Exec(cmd)
 
 	return stderr, err

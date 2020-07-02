@@ -7,7 +7,7 @@
 		<b-card-text><strong>scan:</strong> {{ pool.Scan }} </b-card-text>
 		<b-card-text><strong>errors:</strong> {{ pool.Errors }} </b-card-text>
 
-		<b-progress :value="pool.Scanned" v-if="pool.Scanned" show-progress animated></b-progress>
+		<b-progress :value="pool.Scanned" v-if="pool.Scanned" show-progress :variant="scanVariant" :animated="!pool.ScanPaused"></b-progress>
 	</b-card>
 </template>
 
@@ -25,6 +25,12 @@ export default {
 			}
 
 			return colors[state];
+		}
+	},
+
+	computed: {
+		scanVariant: function() {
+			return this.pool.ScanPaused ? 'warning' : '';
 		}
 	}
 }

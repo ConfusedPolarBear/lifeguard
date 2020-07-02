@@ -13,6 +13,7 @@ type Pool struct {
 	Status     string
 	Scan       string
 	Scanned    float64
+	ScanPaused bool
 	Action     string
 	See        string
 	Containers []*Container
