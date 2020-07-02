@@ -46,10 +46,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<br>
 		<b-card header="Datasets">
 			<input type="text" placeholder="Filter" v-model="filter['Datasets']">
-			<b-table outlined hover :fields="fields['Datasets']" :items="pool.Datasets" :filter="filter['Datasets']">
-				<template v-slot:cell(mounted)="data">
-					<b-button variant="outline-secondary" size="sm" class="cellLeftColButton">{{ data.value.Value == "yes" ? 'Unmount' : 'Mount'}}</b-button>
-				</template>
+			<b-button variant="secondary" v-bind:class="[selected['Datasets'] == '' ? 'disabled' : '']">Mount</b-button>
+			<b-button variant="warning" v-bind:class="[selected['Datasets'] == '' ? 'disabled' : '']">Unmount</b-button>
+
+			<b-table selectable select-mode="multiple" @row-selected="onDatasetsSelected" outlined hover :fields="fields['Datasets']" :items="pool.Datasets" :filter="filter['Datasets']">
 				<template v-slot:cell()="data">
 					{{ data.value.Value | prettyPrint(data.value.Name) }}
 				</template>
@@ -59,7 +59,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<br>
 		<b-card header="Snapshots">
 			<input type="text" placeholder="Filter" v-model="filter['Snapshots']">
-			<b-table outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots" :filter="filter['Snapshots']">
+			<b-button variant="warning" v-bind:class="[selected['Snapshots'] == '' ? 'disabled' : '']">Rollback</b-button>
+			
+			<b-table selectable select-mode="single" @row-selected="onSnapshotSelected" outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots" :filter="filter['Snapshots']">
 				<template v-slot:cell()="data">
 					{{ data.value.Value | prettyPrint(data.value.Name) }}
 				</template>
@@ -94,6 +96,10 @@ export default {
 			'Datasets': '',
 			'Snapshots': ''
 		},
+		selected: {
+			'Datasets': '',
+			'Snapshots': ''
+		},
 		interval: 0,
 	} },
 	methods: {
@@ -109,6 +115,12 @@ export default {
 			} finally {
 				this.loading = false;
 			}
+		},
+		onSnapshotSelected(item) {
+        	this.selected['Snapshots'] = item
+		},
+		onDatasetsSelected(items) {
+        	this.selected['Datasets'] = items
 		}
 	},
 	created() {
