@@ -3,9 +3,9 @@
 			:border-variant="color(pool.State)" header-text-variant="white">
 		<router-link v-if="clickable" :to="'/pool/' + pool.Name" class="stretched-link"></router-link>
 		<br>
-		<b-card-text><b>action:</b> {{ pool.Action }} </b-card-text>
-		<b-card-text><b>scan:</b> {{ pool.Scan }} </b-card-text>
-		<b-card-text><b>errors:</b> {{ pool.Errors }} </b-card-text>
+		<b-card-text><strong>action:</strong> {{ pool.Action }} </b-card-text>
+		<b-card-text><strong>scan:</strong> {{ pool.Scan }} </b-card-text>
+		<b-card-text><strong>errors:</strong> {{ pool.Errors }} </b-card-text>
 
 		<b-progress :value="pool.Scanned" v-if="pool.Scanned" show-progress animated></b-progress>
 	</b-card>

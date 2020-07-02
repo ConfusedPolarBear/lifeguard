@@ -48,7 +48,6 @@ async function GetInfo() {
 async function GetFields(table) {
 	return await fetch('/api/v0/properties?type=' + table)
 		.then(res => res.json());
-
 }
 
 export default {

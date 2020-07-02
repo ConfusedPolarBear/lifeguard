@@ -75,7 +75,7 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			log.Printf("Unable to load key for %s: %s. %s", name, err, stderr)
-			http.Error(w, "An error occurred, check the server log for more details.", http.StatusBadRequest)
+			http.Error(w, msgErrorOccurred, http.StatusBadRequest)
 		}
 
 		return
@@ -103,7 +103,7 @@ func unloadKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			log.Printf("Unable to unload key for %s: %s. %s", name, err, stderr)
-			http.Error(w, "An error occurred, check the server log for more details.", http.StatusBadRequest)
+			http.Error(w, msgErrorOccurred, http.StatusBadRequest)
 		}
 
 		return
@@ -128,7 +128,7 @@ func scrubHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Printf("Unable to scrub pool %s: %s. %s", name, err, stderr)
-		http.Error(w, "An error occurred, check the server log for more details.", http.StatusBadRequest)
+		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
 
 		return
 	}
