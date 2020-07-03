@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 let cachedInfo = {};
+let cachedProperties = {};
 
 function Post(url, body) {
 	// Convert a raw object into a multipart form
@@ -24,6 +25,7 @@ async function Login(username, password) {
 
 	if (res.ok) {
 		cachedInfo = {};
+		cachedProperties = {};
 	}
 	
 	return Promise.resolve(res.ok);
@@ -31,6 +33,8 @@ async function Login(username, password) {
 
 function Logout() {
 	cachedInfo = {};
+	cachedProperties = {};
+
 	return fetch('/api/v0/logout');
 }
 
@@ -50,7 +54,15 @@ async function GetPool(id) {
 }
 
 async function GetFields(table) {
-	return await fetch('/api/v0/properties?type=' + table).then(res => res.json());
+	if (cachedProperties[table] !== undefined) {
+		return cachedProperties[table];
+	}
+
+	return await fetch('/api/v0/properties?type=' + table)
+	.then(res => {
+		cachedProperties[table] = res.json();
+		return cachedProperties[table];
+	});
 }
 
 export default {
