@@ -1,16 +1,20 @@
 <template><div>
 	<web-header></web-header>
+	<b-container id="app" fluid="lg">
+		
+		<br>
+        <b-card header="Sunburst">
+            <sunburst style="height: 500px; margin-bottom: -1em" :data="data">
+				<breadcrumbTrail style="padding-top: 1em" slot="legend" slot-scope="{ nodes, colorGetter, width }" :current="nodes.mouseOver" :root="nodes.root" :colorGetter="colorGetter" :from="nodes.zoomed" :width="width" />
+				
+				<template slot-scope="{ on, actions }">
+					<highlightOnHover v-bind="{ on, actions }"/>
+					<zoomOnClick v-bind="{ on, actions }"/>
+				</template>
 
-    <sunburst :data="tree">
-        <!-- Add behaviors -->
-        <template slot-scope="{ on, actions }">
-            <highlightOnHover v-bind="{ on, actions }"/>
-            <zoomOnClick v-bind="{ on, actions }"/>
-        </template>
-        
-        <!-- Add bottom legend -->
-        <breadcrumbTrail slot="legend" slot-scope="{ nodes, colorGetter, width }" :current="nodes.mouseOver" :root="nodes.root" :colorGetter="colorGetter" :from="nodes.clicked" :width="width" />
-    </sunburst>
+            </sunburst>
+        </b-card>
+	</b-container>
 </div></template>
 
 <script>
@@ -32,8 +36,8 @@ export default {
     zoomOnClick
   },
   data() {
-    return { 
-      tree:  {
+    return {
+      data:  {
       "name": "flare",
         "children": [
           {
