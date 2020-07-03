@@ -1,19 +1,30 @@
 <template><div>
 	<web-header></web-header>
 	<b-container id="app" fluid="lg">
-		
 		<br>
-        <b-card header="Sunburst">
-            <sunburst style="height: 500px; margin-bottom: -1em" :data="data">
-				<breadcrumbTrail style="padding-top: 1em" slot="legend" slot-scope="{ nodes, colorGetter, width }" :current="nodes.mouseOver" :root="nodes.root" :colorGetter="colorGetter" :from="nodes.zoomed" :width="width" />
+		
+		<b-row>
+			<b-col md="4">
+				<b-card header="Options">
+					<b-form-group label="Dataset" label-for="dataset-select">
+						<b-form-select id="dataset-select" v-model="selected" :options="options"></b-form-select>
+					</b-form-group>
+				</b-card>
+			</b-col>
+			<b-col md="8">
+        		<b-card header="Sunburst">
+            		<sunburst style="height: 500px; margin-bottom: -1em" :data="data">
+						<breadcrumbTrail style="padding-top: 1em" slot="legend" slot-scope="{ nodes, colorGetter, width }" :current="nodes.mouseOver" :root="nodes.root" :colorGetter="colorGetter" :from="nodes.zoomed" :width="width" />
 				
-				<template slot-scope="{ on, actions }">
-					<highlightOnHover v-bind="{ on, actions }"/>
-					<zoomOnClick v-bind="{ on, actions }"/>
-				</template>
+						<template slot-scope="{ on, actions }">
+							<highlightOnHover v-bind="{ on, actions }"/>
+							<zoomOnClick v-bind="{ on, actions }"/>
+						</template>
 
-            </sunburst>
-        </b-card>
+            		</sunburst>
+        		</b-card>
+			</b-col>
+		</b-row>
 	</b-container>
 </div></template>
 
@@ -37,6 +48,11 @@ export default {
   },
   data() {
     return {
+		selected: 'a',
+        options: [
+          { value: 'a', text: 'This is First option' },
+          { value: 'b', text: 'Selected Option' }
+        ],
       data:  {
       "name": "flare",
         "children": [
