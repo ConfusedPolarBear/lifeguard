@@ -73,7 +73,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </div></template>
 
 <script>
-import ApiClient from '../apiClient.js';
+import * as ApiClient from '../apiClient.js';
 
 export default {
 	name: 'poolInfo',

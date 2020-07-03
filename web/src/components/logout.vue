@@ -1,11 +1,11 @@
 <template></template>
 
 <script>
-import apiClient from '../apiClient.js';
+import * as ApiClient from '../apiClient.js';
 
 export default {
 	mounted() {
-		apiClient.Logout()
+		ApiClient.Logout()
 		.then(() => {
 			this.$router.push('/');
 		});

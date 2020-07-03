@@ -4,7 +4,7 @@
 let cachedInfo = {};
 let cachedProperties = {};
 
-function Post(url, body) {
+export function Post(url, body) {
 	// Convert a raw object into a multipart form
 	var data = new FormData();
 	for (const key in body) {
@@ -17,7 +17,7 @@ function Post(url, body) {
 	});
 }
 
-async function Login(username, password) {
+export async function Login(username, password) {
 	const res = await Post('/api/v0/authenticate', {
 		Username: username,
 		Password: password
@@ -31,14 +31,14 @@ async function Login(username, password) {
 	return Promise.resolve(res.ok);
 }
 
-function Logout() {
+export function Logout() {
 	cachedInfo = {};
 	cachedProperties = {};
 
 	return fetch('/api/v0/logout');
 }
 
-async function GetInfo() {
+export async function GetInfo() {
 	if (cachedInfo.Authenticated !== undefined) {
 		return cachedInfo;
 	}
@@ -49,11 +49,11 @@ async function GetInfo() {
 	}
 }
 
-async function GetPool(id) {
+export async function GetPool(id) {
 	return await fetch('/api/v0/pool?pool=' + id).then(res => res.json());
 }
 
-async function GetFields(table) {
+export async function GetFields(table) {
 	if (cachedProperties[table] !== undefined) {
 		return cachedProperties[table];
 	}
@@ -63,13 +63,4 @@ async function GetFields(table) {
 		cachedProperties[table] = res.json();
 		return cachedProperties[table];
 	});
-}
-
-export default {
-	Post: Post,
-	Login: Login,
-	Logout: Logout,
-	GetInfo: GetInfo,
-	GetPool: GetPool,
-	GetFields: GetFields
 }

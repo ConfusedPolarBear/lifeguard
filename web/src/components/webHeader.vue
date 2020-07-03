@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import apiClient from '../apiClient.js';
+import * as ApiClient from '../apiClient.js';
 
 export default {
 	data() {
@@ -25,7 +25,7 @@ export default {
 	},
 	methods: {
 		refresh: async function() {
-			let info = await apiClient.GetInfo();
+			let info = await ApiClient.GetInfo();
 			this.auth = info.Authenticated;
 
 			if (this.auth) {
