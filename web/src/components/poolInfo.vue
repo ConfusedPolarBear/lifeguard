@@ -42,38 +42,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</b-table>
 		</b-card>
 
-		<!-- TODO: extract into component -->
-		<br>
-		<b-card header="Datasets">
-			<input type="text" placeholder="Filter" v-model="filter['Datasets']">
-			<b-button variant="secondary" v-bind:class="[selected['Datasets'] == '' ? 'disabled' : '']">Mount</b-button>
-			<b-button variant="warning" v-bind:class="[selected['Datasets'] == '' ? 'disabled' : '']">Unmount</b-button>
-
-			<b-table selectable select-mode="multiple" @row-selected="onDatasetsSelected" outlined hover :fields="fields['Datasets']" :items="pool.Datasets" :filter="filter['Datasets']">
-				<template v-slot:cell()="data">
-					{{ data.value.Value | prettyPrint(data.value.Name) }}
-				</template>
-			</b-table>
-		</b-card>
-
-		<br>
-		<b-card header="Snapshots">
-			<input type="text" placeholder="Filter" v-model="filter['Snapshots']">
-			<b-button variant="warning" v-bind:class="[selected['Snapshots'] == '' ? 'disabled' : '']">Rollback</b-button>
-			
-			<b-table selectable select-mode="single" @row-selected="onSnapshotSelected" outlined hover :fields="fields['Snapshots']" :items="pool.Snapshots" :filter="filter['Snapshots']">
-				<template v-slot:cell()="data">
-					{{ data.value.Value | prettyPrint(data.value.Name) }}
-				</template>
-			</b-table>
-		</b-card>
-		<br>
+		<pool-data :pool="pool" :section="'Datasets'" :fields="fields" @select="dataSelected" @click="dataClick"></pool-data>
+		<pool-data :pool="pool" :section="'Snapshots'" :fields="fields" @select="dataSelected" @click="dataClick"></pool-data>
 	</div>
 	</b-container>
 </div></template>
 
 <script>
-import ApiClient from '../apiClient.js';
+import * as ApiClient from '../apiClient.js';
 
 export default {
 	name: 'poolInfo',
@@ -92,18 +68,16 @@ export default {
 				'Cksum'
 			]
 		},
-		filter: {
-			'Datasets': '',
-			'Snapshots': ''
-		},
-		selected: {
-			'Datasets': '',
-			'Snapshots': ''
-		},
 		interval: 0,
+		pauseRefresh: false,
 	} },
 	methods: {
 		refresh: async function() {
+			if (this.pauseRefresh) {
+				console.info('Refresh paused (filtered selection)');
+				return;
+			}
+
 			this.fields['Datasets']  = await ApiClient.GetFields('Datasets');
 			this.fields['Snapshots'] = await ApiClient.GetFields('Snapshots');
 
@@ -116,11 +90,53 @@ export default {
 				this.loading = false;
 			}
 		},
-		onSnapshotSelected(item) {
-        	this.selected['Snapshots'] = item
+		dataSelected: function(items, filter) {
+			this.pauseRefresh = items.length !== 0 && filter !== '';
 		},
-		onDatasetsSelected(items) {
-        	this.selected['Datasets'] = items
+		nameToHMAC: function(name) {
+			let dataset = this.pool.Datasets.find((x) => { return x.name.Value === name; });
+			
+			if (dataset === undefined) {
+				throw Error('Could not find dataset with name ' + name);
+			} else {
+				return dataset.name.HMAC;
+			}
+		},
+		dataClick: async function(event, name) {
+			let hmac = this.nameToHMAC(name);
+
+			try {
+				let res = undefined;
+				switch (event) {
+					case 'mount':
+						res = await ApiClient.Mount(hmac);
+						break;
+
+					case 'unmount':
+						res = await ApiClient.Unmount(hmac);
+						break;
+
+					case 'load-key':
+						let passphrase = prompt('Enter passphrase for ' + name);
+						res = await ApiClient.LoadKey(hmac, passphrase);
+
+						break;
+
+					case 'unload-key':
+						res = await ApiClient.UnloadKey(hmac);
+						break;
+				}
+
+				this.refresh();
+
+				if (res.length <= 3) {
+					return;
+				}
+
+				alert(res);
+			} catch (e) {
+				console.error(e);
+			}
 		}
 	},
 	created() {

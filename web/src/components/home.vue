@@ -17,7 +17,7 @@
 </div></template>
 
 <script>
-import apiClient from '../apiClient.js';
+import * as ApiClient from '../apiClient.js';
 
 export default {
 	data() {
@@ -33,11 +33,11 @@ export default {
 		login: function(e) {
 			event.preventDefault();
 
-			apiClient.Login(this.username, this.password)
+			ApiClient.Login(this.username, this.password)
 			.then(this.update);
 		},
 		update: async function() {
-			let info = await apiClient.GetInfo();
+			let info = await ApiClient.GetInfo();
 			this.auth = info.Authenticated;
 
 			if (this.auth) {
