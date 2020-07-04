@@ -24,7 +24,7 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	if auth {
 		info["ZFSVersion"] = zpool.GetVersion()
 
-		info["Commit"] = config.Commit
+		info["Commit"] = config.Commit + config.Modified
 		info["BuildTime"] = config.BuildTime
 		info["GoVersion"] = config.GoVersion
 	}

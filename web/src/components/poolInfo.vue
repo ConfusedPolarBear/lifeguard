@@ -26,8 +26,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<b-card header="Devices">
 			<b-progress height="2rem">
-    			<b-progress-bar :label="pool.Datasets[0]['used'].Value | prettyPrint('used')" :value="pool.Datasets[0]['used'].Value / 1000" variant="warning"></b-progress-bar>
-      			<b-progress-bar :label="pool.Datasets[0]['avail'].Value | prettyPrint('avail')" :value="pool.Datasets[0]['avail'].Value / 1000" variant="success"></b-progress-bar>
+    			<b-progress-bar :label="used | prettyPrint('used')" :value="used" :max="max" variant="warning"></b-progress-bar>
+      			<b-progress-bar :label="avail | prettyPrint('avail')" :value="avail" :max="max"  variant="success"></b-progress-bar>
     		</b-progress>
 
 			<br>
@@ -70,6 +70,9 @@ export default {
 		},
 		interval: 0,
 		pauseRefresh: false,
+		avail: 0,
+		used: 0,
+		max: 0,
 	} },
 	methods: {
 		refresh: async function() {
@@ -89,6 +92,11 @@ export default {
 			} finally {
 				this.loading = false;
 			}
+
+			// The first dataset is always the pool itself, extract the used/available space for the progress bar
+			this.used  = Number(this.pool.Datasets[0]['used'].Value);
+			this.avail = Number(this.pool.Datasets[0]['avail'].Value);
+			this.max = this.used + this.avail;
 		},
 		dataSelected: function(items, filter) {
 			this.pauseRefresh = items.length !== 0 && filter !== '';
