@@ -65,6 +65,10 @@ export async function GetFields(table) {
 	});
 }
 
+export async function GetSupportBundle() {
+	return await getText('/api/v0/support');
+}
+
 async function getText(url) {
 	return await fetch(url)
 	.then((res) => {

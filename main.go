@@ -5,6 +5,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/api"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
@@ -13,6 +14,8 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
+	// Normalize generated config values
+	config.GoVersion = strings.ReplaceAll(config.GoVersion, "go version ", "")
 	if len(config.Commit) > 7 {
 		config.Commit = config.Commit[:7]
 	}
