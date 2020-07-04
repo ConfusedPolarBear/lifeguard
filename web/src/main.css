@@ -2,6 +2,7 @@
 	margin: 0 auto;
 	margin-top: 40vh;
 	max-width: 30%;
+	min-width: 500px;
 }
 
 .cellLeftColButton {
@@ -11,4 +12,13 @@
 
 input {
 	margin-bottom: 0.5em !important;
+}
+
+.poolData {
+	margin-top: 1em;
+}
+
+tr, th {
+	/* hide the dashed outline around selected items */
+	outline: none;
 }

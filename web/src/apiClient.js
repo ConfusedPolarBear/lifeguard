@@ -64,3 +64,35 @@ export async function GetFields(table) {
 		return cachedProperties[table];
 	});
 }
+
+async function getText(url) {
+	return await fetch(url)
+	.then((res) => {
+		return Promise.resolve(res.text());
+	});
+}
+
+export async function Mount(id) {
+	return await getText('/api/v0/data/mount?id=' + id);
+}
+
+export async function Unmount(id) {
+	return await getText('/api/v0/data/unmount?id=' + id);
+}
+
+export async function LoadKey(id, passphrase) {
+	const res = await Post('/api/v0/key/load', {
+		'id': id,
+		'passphrase': passphrase
+	});
+
+	return await res.text();
+}
+
+export async function UnloadKey(id) {
+	const res = await Post('/api/v0/key/unload', {
+		'id': id
+	});
+
+	return await res.text();
+}

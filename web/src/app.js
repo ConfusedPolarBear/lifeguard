@@ -7,9 +7,11 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 
+// TODO: automatically load all components from this directory
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
 import poolCard from './components/poolCard.vue'
+import poolData from './components/poolData.vue';
 import webHeader from './components/webHeader.vue';
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -22,6 +24,7 @@ Vue.use(IconsPlugin);
 Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
 Vue.component('pool-card', poolCard);
+Vue.component('pool-data', poolData);
 Vue.component('web-header', webHeader);
 
 Vue.filter('prettyPrint', function(value, name) {
