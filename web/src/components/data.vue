@@ -7,7 +7,7 @@
 			<b-col md="4">
 				<b-card header="Options">
 					<b-form-group label="Dataset" label-for="dataset-select">
-						<b-form-select id="dataset-select" v-model="selected" :options="options"></b-form-select>
+						<b-form-select id="dataset-select" v-model="selected" :options="pools"></b-form-select>
 					</b-form-group>
 				</b-card>
 			</b-col>
@@ -38,6 +38,8 @@ import {
 } from 'vue-d3-sunburst';
 import "vue-d3-sunburst/dist/vue-d3-sunburst.css";
 
+import ApiClient from '../apiClient.js';
+
 export default {
     components: {
     breadcrumbTrail,
@@ -48,7 +50,8 @@ export default {
   },
   data() {
     return {
-		selected: 'a',
+		selected: '',
+		pools: [],
         options: [
           { value: 'a', text: 'This is First option' },
           { value: 'b', text: 'Selected Option' }
@@ -83,6 +86,25 @@ export default {
         ]
       }
     }
-  }
+  	},
+  	methods: {
+	  	refresh: function() {
+			fetch('/api/v0/pools')
+			.then(res => res.json())
+			.then(res => {
+				var pool;
+				for (pool of res){
+					this.pools.push(pool.Name);
+				}
+			})
+			.catch(e => {
+				console.error(e);
+				this.error = true;
+			});
+		}
+  	},
+	mounted() {
+		this.refresh();
+	}
 }
 </script>
