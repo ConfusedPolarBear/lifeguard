@@ -9,12 +9,12 @@
 	</b-jumbotron>
 
 	<br>
-	<div style="margin:1em">
+	<b-container fluid="lg">
 		<h3>Support bundle</h3>
-		<b-form-textarea v-model="bundle" readonly rows="15"></b-form-textarea>
+		<b-form-textarea v-model="bundle" readonly rows="5" max-rows="20"></b-form-textarea>
 		<b-button @click="copyBundle" style="margin-top:0.5em">{{ copyText }}</b-button>
 		
-	</div>
+	</b-container>
 	
 </div></template>
 
