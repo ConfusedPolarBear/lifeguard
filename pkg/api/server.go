@@ -9,12 +9,14 @@ import (
 	"net/http"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -69,50 +71,91 @@ func Setup() {
 
 	store.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 30,   // 30 days
+		MaxAge:   30 * 86400,   // 30 days
 		SameSite: http.SameSiteStrictMode,
 		HttpOnly: true,
 	}
 
-	// Static web UI
-	http.Handle("/", http.FileServer(http.Dir("./web/dist")))
+	r := mux.NewRouter()
 
 	// Security
-	http.HandleFunc("/api/v0/authenticate", loginHandler)
-	http.HandleFunc("/api/v0/logout", logoutHandler)
+	r.HandleFunc("/api/v0/authenticate", loginHandler).Methods("POST")
+	r.HandleFunc("/api/v0/logout", logoutHandler).Methods("POST")
 
 	// Pool
-	http.HandleFunc("/api/v0/pool", getPoolHandler)
-	http.HandleFunc("/api/v0/pools", getAllPoolsHandler)
-	http.HandleFunc("/api/v0/properties", getPropertyListHandler)
+	r.HandleFunc("/api/v0/pool/{pool}", getPoolHandler).Methods("GET")
+	r.HandleFunc("/api/v0/pools", getAllPoolsHandler).Methods("GET")
+	r.HandleFunc("/api/v0/properties/{type}", getPropertyListHandler).Methods("GET")
 
-	SetupInfo()
-	SetupDataset()
+	SetupInfo(r)
+	SetupDataset(r)
 
-	log.Printf("Listening on port %s, all interfaces", PORT)
-	log.Fatal(http.ListenAndServe(PORT, nil))
-}
+	// Static web UI
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/dist"))).Methods("GET")
 
-func GetParameter(w http.ResponseWriter, r *http.Request, name string) (string, bool) {
-	data := ""
-	if rawData, ok := r.Form[name]; ok {
-		data = rawData[0]
-	} else {
-		msg := fmt.Sprintf("Missing %s parameter", name)
-		http.Error(w, msg, http.StatusBadRequest)
-		return "", false
+	// Middleware
+	r.Use(securityHeadersMw)
+
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         PORT,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
-	return data, true
+	log.Printf("Listening on port %s, all interfaces", PORT)
+	log.Fatal(srv.ListenAndServe())
 }
 
-func GetHMAC(w http.ResponseWriter, r *http.Request) (string, bool) {
+func securityHeadersMw(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: eliminate inline CSS
+		w.Header().Set("Content-Security-Policy", `default-src 'self';
+			base-uri 'none';
+			block-all-mixed-content;
+			form-action 'self';
+			frame-ancestors 'none';
+			style-src 'self' 'unsafe-inline';
+			object-src 'none';`)
+
+		w.Header().Set("Referrer-Policy", "no-referrer")		// never send referrer
+		w.Header().Set("X-Frame-Options", "deny")				// forbid framing
+		w.Header().Set("X-Content-Type-Options", "nosniff")		// forbid content type sniffing
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func GetParameter(r *http.Request, name string) (string, bool) {
+	// First search for the variable in the URL
+	vars := mux.Vars(r)
+	if rawVar, ok := vars[name]; ok {
+		return string(rawVar), true
+	}
+
+	// If the variable wasn't in the URL, it is encoded as a URL encoded form
+	r.ParseForm()
+	data := r.FormValue(name)
+
+	return data, (data != "")
+}
+
+func ReportMissing(w http.ResponseWriter) {
+	msg := fmt.Sprintf("Missing parameter")
+	http.Error(w, msg, http.StatusBadRequest)
+}
+
+func ReportInvalid(w http.ResponseWriter) {
+	msg := fmt.Sprintf("Invalid id")
+	http.Error(w, msg, http.StatusBadRequest)
+}
+
+func GetHMAC(r *http.Request) (string, bool) {
 	data := ""
-	hmac, ok := GetParameter(w, r, "id")
+	hmac, ok := GetParameter(r, "id")
 	if ok {
 		data = crypto.LookupHMAC(hmac)
 		if data == "" {
-			http.Error(w, "Invalid id", http.StatusBadRequest)
 			return "", false
 		}
 	} else {
@@ -136,8 +179,9 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pool, ok := GetParameter(w, r, "pool")
+	pool, ok := GetParameter(r, "pool")
 	if !ok {
+		ReportMissing(w)
 		return
 	}
 
@@ -151,8 +195,9 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name, ok := GetParameter(w, r, "type")
+	name, ok := GetParameter(r, "type")
 	if !ok {
+		ReportMissing(w)
 		return
 	}
 
@@ -220,16 +265,8 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAuth(r *http.Request) (string, string) {
-	username := ""
-	password := ""
-
-	if rawUsername, ok := r.Form["Username"]; ok {
-		username = rawUsername[0]
-	}
-
-	if rawPassword, ok := r.Form["Password"]; ok {
-		password = rawPassword[0]
-	}
+	username, _ := GetParameter(r, "Username")
+	password, _ := GetParameter(r, "Password")
 
 	return username, password
 }
@@ -262,8 +299,6 @@ func checkAuth(username string, password string) (bool, string) {
 func getSession(r *http.Request) (*sessions.Session) {
 	// store.Get returns a blank session if there is an error, so the error is safe to ignore
 	session, _ := store.Get(r, "SESSION")
-
-	r.ParseMultipartForm(FORM_SIZE)
 
 	return session
 }

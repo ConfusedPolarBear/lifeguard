@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
 	entry: { index: path.resolve(__dirname, "web", "src", "app.js") },
 	output: { path: path.resolve(__dirname, "web", "dist") },
+	devtool: 'source-map',	// TODO: investigate alternatives - this slows down building but avoids eval() [evil() ?]
 	module: {
 		rules: [
 		{
@@ -32,7 +33,7 @@ module.exports = {
 	resolve: {
 		extensions: ['.js'],
 		alias: {
-			'vue$': 'vue/dist/vue.esm.js',
+			'vue$': 'vue/dist/vue.runtime.esm.js',
 			'vue-router$': 'vue-router/dist/vue-router.esm.js',
 		}
 	}

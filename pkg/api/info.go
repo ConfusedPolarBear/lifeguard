@@ -9,11 +9,13 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+
+	"github.com/gorilla/mux"
 )
 
-func SetupInfo() {
-	http.HandleFunc("/api/v0/info", versionHandler)
-	http.HandleFunc("/api/v0/support", supportHandler)
+func SetupInfo(r *mux.Router) {
+	r.HandleFunc("/api/v0/info", versionHandler).Methods("GET")
+	r.HandleFunc("/api/v0/support", supportHandler).Methods("GET")
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {

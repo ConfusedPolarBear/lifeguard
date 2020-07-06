@@ -8,6 +8,7 @@ import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 
 // TODO: automatically load all components from this directory
+import app from './components/app.vue';
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
 import poolCard from './components/poolCard.vue'
@@ -21,6 +22,7 @@ Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
+Vue.component('app', app);
 Vue.component('rainbow-state', rainbowState);
 Vue.component('pools', pools);
 Vue.component('pool-card', poolCard);
@@ -103,6 +105,8 @@ const router = new VueRouter({
 	routes
 });
 
-const app = new Vue({
-	router
-}).$mount('#app');
+new Vue({
+	el: '#app',
+	router,
+	render: h => h(app)
+});

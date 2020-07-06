@@ -13,10 +13,16 @@ FLAGS="-X '$(CONFIG).Commit=$(COMMIT)'\
 	-X '$(CONFIG).GoVersion=$(VERSION)'\
 	-X '$(CONFIG).Modified=$(MODIFIED)'"
 
-all: test build
+dev: test server web
+prod: test server web-prod
 
-build:
+server:
 	go build -v -ldflags $(FLAGS)
+
+web-prod:
+	npm run prod
+
+web:
 	npm run dev
 
 archive:

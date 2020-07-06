@@ -5,15 +5,20 @@ let cachedInfo = {};
 let cachedProperties = {};
 
 export function Post(url, body) {
-	// Convert a raw object into a multipart form
-	var data = new FormData();
-	for (const key in body) {
-		data.append(key, body[key]);
+	// Transform the object into a URI encoded form (the hard way)
+	let data = [];
+	for (let key in body) {
+		data.push(encodeURIComponent(key) + '=' + encodeURIComponent(body[key]));
 	}
+	let postData = data.join('&');
 
+	// Send it
 	return fetch(url, {
 		method: 'POST',
-		body: data
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded'
+		},
+		body: postData
 	});
 }
 
@@ -35,7 +40,7 @@ export function Logout() {
 	cachedInfo = {};
 	cachedProperties = {};
 
-	return fetch('/api/v0/logout');
+	return Post('/api/v0/logout');
 }
 
 export async function GetInfo() {
@@ -50,7 +55,7 @@ export async function GetInfo() {
 }
 
 export async function GetPool(id) {
-	return await fetch('/api/v0/pool?pool=' + id).then(res => res.json());
+	return await fetch('/api/v0/pool/' + encodeURIComponent(id)).then(res => res.json());
 }
 
 export async function GetFields(table) {
@@ -58,7 +63,7 @@ export async function GetFields(table) {
 		return cachedProperties[table];
 	}
 
-	return await fetch('/api/v0/properties?type=' + table)
+	return await fetch('/api/v0/properties/' + table)
 	.then(res => {
 		cachedProperties[table] = res.json();
 		return cachedProperties[table];
@@ -76,25 +81,28 @@ async function getText(url) {
 	});
 }
 
+// TODO: is there a better way to encode these URLs?
 export async function Mount(id) {
-	return await getText('/api/v0/data/mount?id=' + id);
+	const res = await Post('/api/v0/data/' + encodeURIComponent(id) + '/mount');
+	return await res.text();
 }
 
 export async function Unmount(id) {
-	return await getText('/api/v0/data/unmount?id=' + id);
+	const res = await Post('/api/v0/data/' + encodeURIComponent(id) + '/unmount');
+	return await res.text();
 }
 
 export async function LoadKey(id, passphrase) {
-	const res = await Post('/api/v0/key/load', {
+	const res = await Post('/api/v0/key/' + encodeURIComponent(id) + '/load', {
 		'id': id,
-		'passphrase': passphrase
+		'Passphrase': passphrase
 	});
 
 	return await res.text();
 }
 
 export async function UnloadKey(id) {
-	const res = await Post('/api/v0/key/unload', {
+	const res = await Post('/api/v0/key/' + encodeURIComponent(id) + '/unload', {
 		'id': id
 	});
 

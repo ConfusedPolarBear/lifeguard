@@ -13,21 +13,23 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
+
+	"github.com/gorilla/mux"
 )
 
-func SetupDataset() {
+func SetupDataset(r *mux.Router) {
 	// Retrieves information for a dataset or snapshot
-	http.HandleFunc("/api/v0/data", getDataInfoHandler)
-	http.HandleFunc("/api/v0/data/mount", mountHandler)
-	http.HandleFunc("/api/v0/data/unmount", unmountHandler)
+	r.HandleFunc("/api/v0/data/{id}/info", getDataInfoHandler).Methods("GET")
+	r.HandleFunc("/api/v0/data/{id}/mount", mountHandler).Methods("POST")
+	r.HandleFunc("/api/v0/data/{id}/unmount", unmountHandler).Methods("POST")
 
 	// Load and unload encryption keys
-	http.HandleFunc("/api/v0/key/load", loadKeyHandler)
-	http.HandleFunc("/api/v0/key/unload", unloadKeyHandler)
+	r.HandleFunc("/api/v0/key/{id}/load", loadKeyHandler).Methods("POST")
+	r.HandleFunc("/api/v0/key/{id}/unload", unloadKeyHandler).Methods("POST")
 
 	// Start or pause a pool scrub
-	http.HandleFunc("/api/v0/pool/scrub", scrubHandler)
-	http.HandleFunc("/api/v0/pool/scrub/pause", scrubPauseHandler)
+	r.HandleFunc("/api/v0/pool/{id}/scrub/start", scrubHandler).Methods("POST")
+	r.HandleFunc("/api/v0/pool/{id}/scrub/pause", scrubPauseHandler).Methods("POST")
 }
 
 func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,8 +39,9 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	var saved *zpool.Data
 
-	name, ok := GetHMAC(w, r)
+	name, ok := GetHMAC(r)
 	if !ok {
+		ReportInvalid(w)
 		return
 	}
 
@@ -59,13 +62,11 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	passphrase, okPassphrase := GetParameter(w, r, "passphrase")
-	if !okPassphrase {
-		return
-	}
+	passphrase, okPassphrase := GetParameter(r, "Passphrase")
+	name, okName := GetHMAC(r)
 
-	name, okName := GetHMAC(w, r)
-	if !okName {
+	if !okPassphrase || !okName {
+		ReportMissing(w)
 		return
 	}
 
@@ -96,8 +97,9 @@ func unloadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	name, okName := GetHMAC(w, r)
+	name, okName := GetHMAC(r)
 	if !okName {
+		ReportInvalid(w)
 		return
 	}
 
@@ -124,8 +126,9 @@ func scrubHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	name, ok := GetHMAC(w, r)
+	name, ok := GetHMAC(r)
 	if !ok {
+		ReportInvalid(w)
 		return
 	}
 
@@ -149,8 +152,9 @@ func scrubPauseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	name, ok := GetHMAC(w, r)
+	name, ok := GetHMAC(r)
 	if !ok {
+		ReportInvalid(w)
 		return
 	}
 
@@ -173,8 +177,9 @@ func mountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	name, ok := GetHMAC(w, r)
+	name, ok := GetHMAC(r)
 	if !ok {
+		ReportInvalid(w)
 		return
 	}
 
@@ -201,8 +206,9 @@ func unmountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	name, ok := GetHMAC(w, r)
+	name, ok := GetHMAC(r)
 	if !ok {
+		ReportInvalid(w)
 		return
 	}
 
