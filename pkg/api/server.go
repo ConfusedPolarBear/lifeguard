@@ -112,13 +112,13 @@ func Setup() {
 
 func securityHeadersMw(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: eliminate inline CSS
+		// TODO: eliminate data URLs for images
 		w.Header().Set("Content-Security-Policy", `default-src 'self';
 			base-uri 'none';
 			block-all-mixed-content;
 			form-action 'self';
 			frame-ancestors 'none';
-			style-src 'self' 'unsafe-inline';
+			img-src 'self' data:;
 			object-src 'none';`)
 
 		w.Header().Set("Referrer-Policy", "no-referrer")		// never send referrer
