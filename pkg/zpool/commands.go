@@ -18,7 +18,7 @@ var cmdLoadKey   = []string { cmdZfs, "load-key" }
 var cmdUnloadKey = []string { cmdZfs, "unload-key" }
 
 // Commands without zfs allow support
-var cmdScrub      = []string { "sudo", cmdZpool, "scrub" }
-var cmdPauseScrub = []string { "sudo", cmdZpool, "scrub", "-p" }
-var cmdMount      = []string { "sudo", cmdZfs, "mount" }
-var cmdUnmount    = []string { "sudo", cmdZfs, "unmount" }
+var cmdScrub      = []string { "sudo", "-n", cmdZpool, "scrub" }
+var cmdPauseScrub = []string { "sudo", "-n", cmdZpool, "scrub", "-p" }
+var cmdMount      = []string { "sudo", "-n", cmdZfs, "mount" }
+var cmdUnmount    = []string { "sudo", "-n", cmdZfs, "unmount" }
