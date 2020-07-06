@@ -13,6 +13,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		Unable to connect to the server. Verify it is running and that you are logged in.
 	</b-alert>
 
+	<div>
+		<b-modal centered id="modalKeyLoad" title="Enter passphrase" @ok="keyLoadOk">
+			<!-- TODO: why does pressing Enter not submit the modal? Is there an event we can listen for? -->
+			<!-- passphrase length restrictions are due to how zfs derives keys -->
+			<p style="margin-bottom:0.5em">The dataset <code>{{ keyLoad['dataset'] }}</code> requires a passphrase:</p>
+			<b-form-input id="keyLoadPassphrase" v-model="keyLoad['passphrase']" type="password" minlength="8" maxlength="512" placeholder="Passphrase"></b-form-input>
+		</b-modal>
+	</div>
+
 	<div :class="{ hide: loading }">
 		<br>
 		<b-breadcrumb>
@@ -67,6 +76,11 @@ export default {
 				'Write',
 				'Cksum'
 			]
+		},
+		keyLoad: {
+			'hmac': '',
+			'dataset': '',
+			'passphrase': ''
 		},
 		interval: 0,
 		pauseRefresh: false,
@@ -125,8 +139,15 @@ export default {
 						break;
 
 					case 'load-key':
-						let passphrase = prompt('Enter passphrase for ' + name);
-						res = await ApiClient.LoadKey(hmac, passphrase);
+						this.keyLoad = {
+							'hmac': hmac,
+							'dataset': name,
+							'passphrase': ''
+						};
+						res = '';
+
+						this.$bvModal.show('modalKeyLoad');
+						setTimeout(() => { document.getElementById('keyLoadPassphrase').focus(); }, 250);
 
 						break;
 
@@ -141,10 +162,40 @@ export default {
 					return;
 				}
 
-				alert(res);
+				this.popup('Error', res);
 			} catch (e) {
 				console.error(e);
 			}
+		},
+		doLoadKey: async function() {
+			let res = await ApiClient.LoadKey(this.keyLoad['hmac'], this.keyLoad['passphrase']);
+			this.refresh();
+
+			if (res.length <= 3) {
+				return;
+			}
+
+			this.popup('Error', res);
+		},
+		keyLoadOk: function(e) {
+			e.preventDefault();
+
+			let valid = document.getElementById('keyLoadPassphrase').checkValidity();
+			if (!valid) {
+				return false;
+			}
+
+			this.$nextTick(() => {
+				this.$bvModal.hide('modalKeyLoad');
+				this.doLoadKey();
+			});
+		},
+		popup: function(title, msg) {
+			this.$bvModal.msgBoxOk(msg, {
+				title: title,
+				size: 'sm',
+				centered: true
+			});
 		}
 	},
 	created() {
