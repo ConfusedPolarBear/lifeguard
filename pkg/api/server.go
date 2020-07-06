@@ -21,9 +21,6 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-const PORT string = ":5120"
-const FORM_SIZE int64 = 2048
-
 var (
 	key = []byte("")			// use a temporary key so key and store are accessible throughout the api package
 	store = sessions.NewCookieStore(key)
@@ -38,6 +35,12 @@ type Column struct {
 }
 
 func Setup() {
+	port := config.GetString("server.bind")
+	if port == "" {
+		log.Printf("Warning: No option was specified for server.bind, listening on port 5120 (all interfaces)")
+		port = ":5120"
+	}
+
 	key = []byte(config.GetString("security.session_key"))
 
 	// Validate session options
@@ -98,12 +101,12 @@ func Setup() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         PORT,
+		Addr:         port,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Printf("Listening on port %s, all interfaces", PORT)
+	log.Printf("Listening on %s", port)
 	log.Fatal(srv.ListenAndServe())
 }
 

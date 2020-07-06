@@ -27,7 +27,7 @@ web:
 
 archive:
 	tar -cf $(ARCHIVE) lifeguard web/ assets/ scripts/ example_config.ini
-	tar -f $(ARCHIVE) --delete web/src
+	tar -f $(ARCHIVE) --delete web/src web/dist/*.map assets/Insomnia*
 	gzip -f $(ARCHIVE)
 
 test:
@@ -39,3 +39,6 @@ install:
 clean:
 	go clean
 	rm -rf web/dist/
+
+# Bug fix: make often incorrectly asserts that web is 'up to date' when it is not
+.PHONY: web web-prod
