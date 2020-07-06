@@ -30,7 +30,7 @@ Vue.component('pool-data', poolData);
 Vue.component('web-header', webHeader);
 
 Vue.filter('prettyPrint', function(value, name) {
-	var numbers  = [ 'used', 'avail', 'usedsnap', 'usedds', 'refer', 'free', 'size' ];
+	var numbers  = [ 'avail', 'free', 'quota', 'refer', 'size', 'used', 'usedds', 'usedsnap' ];
 	var percents = [ 'capacity', 'fragmentation' ];
 
 	if (numbers.indexOf(name) !== -1) {
@@ -61,18 +61,6 @@ Vue.filter('prettyPrint', function(value, name) {
 
 	return value;
 });
-
-// TODO: unborkulate this. vue says that raw is undefined
-/*
-Vue.filter('periodNewlines', function(raw) {
-	console.log(`transforming ${raw}`);
-	return raw.replace(/\n/g, ". ")
-});
-Vue.filter('stripNewlines', function(raw) {
-	console.log(`stripping {raw}`);
-	return raw.replace(/\n/g, "")
-});
-*/
 
 const routes = [
 	{
