@@ -3,8 +3,19 @@
 
 package config
 
+import (
+	"strings"
+)
+
 // These are set automatically by build.sh - DO NOT CHANGE THEM HERE
 var Commit    string
 var Modified  string
 var BuildTime string
 var GoVersion string
+
+func Normalize() {
+	GoVersion = strings.ReplaceAll(GoVersion, "go version ", "")
+	if len(Commit) > 7 {
+		Commit = Commit[:7]
+	}
+}

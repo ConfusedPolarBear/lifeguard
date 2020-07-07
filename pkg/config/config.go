@@ -13,6 +13,7 @@ func Load() {
 	viper.SetConfigName("config")
 
 	// TODO: add a proper path (like /etc/lifeguard) when packaging this for debian
+	viper.AddConfigPath("./config/")
 	viper.AddConfigPath(".")
 
 	err := viper.ReadInConfig()

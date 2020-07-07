@@ -6,16 +6,25 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/mux"
 )
+
+type File struct {
+	Type string
+	Name string
+	HMAC string
+	Size string
+}
 
 func SetupDataset(r *mux.Router) {
 	// Retrieves information for a dataset or snapshot
@@ -30,6 +39,10 @@ func SetupDataset(r *mux.Router) {
 	// Start or pause a pool scrub
 	r.HandleFunc("/api/v0/pool/{id}/scrub/start", scrubHandler).Methods("POST")
 	r.HandleFunc("/api/v0/pool/{id}/scrub/pause", scrubPauseHandler).Methods("POST")
+
+	// File browsing
+	r.HandleFunc("/api/v0/files/list/{id}", browseFilesHandler).Methods("GET")		// list directory
+	//r.HandleFunc("/api/v0/files/get/{id}", browseFilesHandler).Methods("GET")		// get file
 }
 
 func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -223,4 +236,66 @@ func unmountHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(fmt.Sprintf("%s unmounted dataset %s", username, name))
 	http.Error(w, "", http.StatusOK)
+}
+
+func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
+	var files []File
+	username := getUsername(r, w)
+	if username == "" {
+		log.Printf("not authed")
+		return
+	}
+
+	path, ok := GetHMAC(r)
+	if !ok {
+		log.Printf("bad hmac")
+		return
+	}
+
+	// Dataset names aren't prefixed with a slash
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+
+	log.Printf("%s browsed to %s", username, path)
+
+	// TODO: Lifeguard could verify that the browser binary has a signature on it
+	// The signature can be from any key but the public key must be printed at startup
+	//    and must be the same between all binaries
+	contents, stderr, err := zpool.Exec([]string { "./browser", "-f", path })
+
+	if len(contents) <= 3 || err != nil {
+		http.Error(w, "Unable to list contents", http.StatusInternalServerError)
+		log.Printf("Unable to list contents of %s: %s. Error: %s", path, err, stderr)
+		return
+	}
+
+	// The first item with type "c" (current) is the current path
+	files = append(files, File {
+		Type: "c",
+		Name: path,
+		HMAC: "",
+		Size: "0",
+	})
+
+	for _, raw := range strings.Split(contents, "\n") {
+		parts := strings.Split(raw, " ")
+		if len(parts) != 3 {
+			break
+		}
+
+		decoded, _ := base64.StdEncoding.DecodeString(parts[1])
+		
+		current := path + "/" + string(decoded)
+		hmac := crypto.GenerateHMAC(current)
+
+		files = append(files, File {
+			Type: parts[0],
+			Name: string(decoded),
+			HMAC: hmac,
+			Size: parts[2],
+		})
+	}
+
+	w.Write(zpool.Encode(files))
 }

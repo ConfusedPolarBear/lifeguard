@@ -13,11 +13,20 @@ FLAGS="-X '$(CONFIG).Commit=$(COMMIT)'\
 	-X '$(CONFIG).GoVersion=$(VERSION)'\
 	-X '$(CONFIG).Modified=$(MODIFIED)'"
 
-dev: test server web
-prod: test server web-prod
+dev: test server browser web
+prod: test server browser-prod web-prod
+backend: server browser
 
 server:
 	go build -v -ldflags $(FLAGS)
+
+browser-prod:
+	make -C cmd/browser prod
+	mv cmd/browser/browser ./
+
+browser:
+	make -C cmd/browser
+	mv cmd/browser/browser ./
 
 web-prod:
 	npm run prod
@@ -26,7 +35,7 @@ web:
 	npm run dev
 
 archive:
-	tar -cf $(ARCHIVE) lifeguard web/ assets/ scripts/ example_config.ini
+	tar -cf $(ARCHIVE) lifeguard browser web/ assets/ scripts/ config/
 	tar -f $(ARCHIVE) --delete web/src web/dist/*.map assets/Insomnia*
 	gzip -f $(ARCHIVE)
 
@@ -40,5 +49,5 @@ clean:
 	go clean
 	rm -rf web/dist/
 
-# Bug fix: make often incorrectly asserts that web is 'up to date' when it is not
-.PHONY: web web-prod
+# Bug fix: make often incorrectly asserts that some targets are 'up to date' when they are not
+.PHONY: web web-prod browser browser-prod

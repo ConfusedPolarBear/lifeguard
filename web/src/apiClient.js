@@ -108,3 +108,9 @@ export async function UnloadKey(id) {
 
 	return await res.text();
 }
+
+export async function Browse(id) {
+	const res = await fetch('/api/v0/files/list/' + encodeURIComponent(id));
+
+	return await res.json();
+}
