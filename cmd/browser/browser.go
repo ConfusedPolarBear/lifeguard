@@ -107,6 +107,7 @@ func main() {
 			log.Fatalf("Error: unable to list directory contents of %s: %s", path, err)
 		}
 
+		fmt.Printf("fold")
 		for _, entry := range contents {
 			typeChar := "f"
 			name := base64.StdEncoding.EncodeToString([]byte(entry.Name()))
@@ -119,6 +120,7 @@ func main() {
 			fmt.Printf("%s %s %d\n", typeChar, name, entry.Size())
 		}
 	} else {
+		fmt.Printf("file")
 		_, err := io.Copy(os.Stdout, file)
 		if err != nil {
 			log.Fatalf("Error: Unable to copy %s: %s", path, err)

@@ -110,7 +110,7 @@ export async function UnloadKey(id) {
 }
 
 export async function Browse(id) {
-	const res = await fetch('/api/v0/files/list/' + encodeURIComponent(id));
+	const res = await fetch('/api/v0/files/browse/' + encodeURIComponent(id));
 
 	return await res.json();
 }

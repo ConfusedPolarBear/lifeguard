@@ -1,7 +1,12 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+// TODO: look into shortening this
 import './main.css';
+import 'material-design-icons/iconfont/material-icons.css';
+import 'material-design-icons/iconfont/MaterialIcons-Regular.woff';
+import 'material-design-icons/iconfont/MaterialIcons-Regular.woff2';
+import 'material-design-icons/iconfont/MaterialIcons-Regular.ttf';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
@@ -14,9 +19,12 @@ import pools from './components/pools.vue';
 import poolCard from './components/poolCard.vue'
 import poolData from './components/poolData.vue';
 import webHeader from './components/webHeader.vue';
+import fileBrowser from './components/fileBrowser.vue';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+Vue.config.devtools = true;
 
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
@@ -28,6 +36,7 @@ Vue.component('pools', pools);
 Vue.component('pool-card', poolCard);
 Vue.component('pool-data', poolData);
 Vue.component('web-header', webHeader);
+Vue.component('file-browser', fileBrowser);
 
 Vue.filter('prettyPrint', function(value, name) {
 	var numbers  = [ 'avail', 'free', 'quota', 'refer', 'size', 'used', 'usedds', 'usedsnap' ];

@@ -23,6 +23,12 @@ module.exports = {
 				{ loader: 'style-loader', options: { injectType: 'linkTag' } },
 				{ loader: 'file-loader' },
 			],
+		},
+		{
+			test: /\.(woff|woff2|ttf)$/i,
+			use: [
+				{ loader: 'file-loader', options: { name: '[name].[ext]'} }
+			]
 		}
 		],
 	},

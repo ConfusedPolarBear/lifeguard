@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"path/filepath"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
@@ -41,8 +42,7 @@ func SetupDataset(r *mux.Router) {
 	r.HandleFunc("/api/v0/pool/{id}/scrub/pause", scrubPauseHandler).Methods("POST")
 
 	// File browsing
-	r.HandleFunc("/api/v0/files/list/{id}", browseFilesHandler).Methods("GET")		// list directory
-	//r.HandleFunc("/api/v0/files/get/{id}", browseFilesHandler).Methods("GET")		// get file
+	r.HandleFunc("/api/v0/files/browse/{id}", browseFilesHandler).Methods("GET")		// list directory
 }
 
 func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -270,9 +270,13 @@ func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The first item with type "c" (current) is the current path
+	// test if this is a folder or file
+	if contents[:4] == "fold" {
+		contents = contents[4:]
+
+		// The first item with type "@" is the current path that we are at
 	files = append(files, File {
-		Type: "c",
+		Type: "@",
 		Name: path,
 		HMAC: "",
 		Size: "0",
@@ -298,4 +302,12 @@ func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(zpool.Encode(files))
+
+	} else if contents[:4] == "file" {
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filepath.Base(path)))
+		w.Write([]byte(contents[4:]))
+
+	} else {
+		http.Error(w, "Unknown type", http.StatusInternalServerError)
+	}
 }

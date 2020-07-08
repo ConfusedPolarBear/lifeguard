@@ -13,6 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		Unable to connect to the server. Verify it is running and that you are logged in.
 	</b-alert>
 
+	<!-- Key load modal -->
 	<div>
 		<b-modal centered id="modalKeyLoad" title="Enter passphrase" @ok="keyLoadOk">
 			<!-- TODO: why does pressing Enter not submit the modal? Is there an event we can listen for? -->
@@ -21,6 +22,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<b-form-input id="keyLoadPassphrase" v-model="keyLoad['passphrase']" type="password" minlength="8" maxlength="512" placeholder="Passphrase"></b-form-input>
 		</b-modal>
 	</div>
+
+	<file-browser v-if="browse['show']" :hmac="browse['hmac']" :key="browse['key']"></file-browser>
 
 	<div :class="{ hide: loading }">
 		<br>
@@ -87,6 +90,11 @@ export default {
 		avail: 0,
 		used: 0,
 		max: 0,
+		browse: {
+			'show': false,
+			'hmac': '',
+			'key': 0
+		}
 	} },
 	methods: {
 		refresh: async function() {
@@ -128,8 +136,15 @@ export default {
 			let hmac = this.nameToHMAC(name);
 
 			try {
-				let res = undefined;
+				let res = '';
+
 				switch (event) {
+					case 'browse':
+						this.browse['key'] += 1;		// force re-render
+						this.browse['show'] = true;
+						this.browse['hmac'] = hmac;
+						break;
+
 					case 'mount':
 						res = await ApiClient.Mount(hmac);
 						break;

@@ -8,6 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         <b-form-group>
             <input style="width:45%;margin-right:1em" type="text" placeholder="Filter" v-model="filter">
 
+            <b-button :disabled="disableToolbar" @click="browse">Browse</b-button>
             <b-button :disabled="disableToolbar" @click="mount">{{ propertyEqual('mounted', 'no') ? 'Mount': 'Unmount' }}</b-button>
             <b-button :disabled="disableToolbar" @click="loadKey">{{ propertyEqual('keystatus', 'unavailable') ? 'Load key' : 'Unload key' }}</b-button>
             <b-dropdown split text="Snapshot"  :disabled="disableToolbar">
@@ -65,6 +66,9 @@ export default {
         loadKey: function() {
             let event = this.propertyEqual('keystatus', 'unavailable') ? 'load-key' : 'unload-key';
             this.$emit('click', event, this.selected[0].name.Value);
+        },
+        browse: function() {
+            this.$emit('click', 'browse', this.selected[0].name.Value);
         }
     }
 }
