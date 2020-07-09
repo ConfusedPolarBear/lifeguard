@@ -12,8 +12,11 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/notifications"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 )
+
+var poolHistory = make(map[string]*structs.Pool)
 
 func ParseZpoolStatus(raw string) *structs.Pool {
 	var pool *structs.Pool
@@ -110,6 +113,13 @@ func ParseZpoolStatus(raw string) *structs.Pool {
 			pool.Containers = append(pool.Containers, &container)
 		}
 	}
+
+	// Check for pool state changes and send notifications as needed
+	name := pool.Name
+	notifications.UpdatePoolState(name, pool, poolHistory[name])
+	
+	// Save the current state
+	poolHistory[name] = pool
 
 	return pool
 }
