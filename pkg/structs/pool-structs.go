@@ -4,7 +4,7 @@
 
 // Structs originally from https://github.com/skeltonn/zfs-manager
 
-package zpool
+package structs
 
 // Pool wide status
 type Pool struct {

@@ -1,7 +1,7 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-package zpool
+package structs
 
 type Property struct {
 	Name  string

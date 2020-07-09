@@ -6,6 +6,7 @@ package main
 import (
 	"testing"
 
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/google/go-cmp/cmp"
@@ -17,7 +18,7 @@ func areEqual(name string, expected interface{}, actual interface{}, test *testi
 	}
 }
 
-func areContainersEqual(name string, expected []*zpool.Container, actual []*zpool.Container, test *testing.T) {
+func areContainersEqual(name string, expected []*structs.Container, actual []*structs.Container, test *testing.T) {
 	if len(expected) != len(actual) {
 		test.Errorf("Error testing %s - expected %d containers but found %d.", name, len(expected), len(actual))
 		return
@@ -57,8 +58,8 @@ errors: No known data errors`
 	areEqual("healthy errors", "No known data errors", parsed.Errors, t)
 	areEqual("healthy raw", output, parsed.Raw, t)
 
-	var containers []*zpool.Container
-	containers = append(containers, &zpool.Container {
+	var containers []*structs.Container
+	containers = append(containers, &structs.Container {
 		Name:   "test",
 		State:  "ONLINE",
 		Read:   "0",
@@ -67,7 +68,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  0,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "mirror-0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -76,7 +77,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  1,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:1:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -85,7 +86,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  2,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:2:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -128,8 +129,8 @@ errors: No known data errors`
 	areEqual("checksum errors", "No known data errors", parsed.Errors, t)
 	areEqual("checksum raw", output, parsed.Raw, t)
 
-	var containers []*zpool.Container
-	containers = append(containers, &zpool.Container {
+	var containers []*structs.Container
+	containers = append(containers, &structs.Container {
 		Name:   "test",
 		State:  "ONLINE",
 		Read:   "0",
@@ -138,7 +139,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  0,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "mirror-0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -147,7 +148,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  1,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:1:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -156,7 +157,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  2,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:2:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -202,8 +203,8 @@ errors: No known data errors`
 	areEqual("resilvering errors", "No known data errors", parsed.Errors, t)
 	areEqual("resilvering raw", output, parsed.Raw, t)
 
-	var containers []*zpool.Container
-	containers = append(containers, &zpool.Container {
+	var containers []*structs.Container
+	containers = append(containers, &structs.Container {
 		Name:   "test",
 		State:  "DEGRADED",
 		Read:   "0",
@@ -212,7 +213,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  0,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "mirror-0",
 		State:  "DEGRADED",
 		Read:   "0",
@@ -221,7 +222,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  1,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:1:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -230,7 +231,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  2,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "replacing-1",
 		State:  "DEGRADED",
 		Read:   "0",
@@ -239,7 +240,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  2,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "old",
 		State:  "UNAVAIL",
 		Read:   "4",
@@ -248,7 +249,7 @@ errors: No known data errors`
 		Status: "",
 		Level:  3,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "pci-0000:03:00.0-scsi-0:0:2:0",
 		State:  "ONLINE",
 		Read:   "0",
@@ -294,8 +295,8 @@ errors: Permanent errors have been detected in the following files:
 	areEqual("error errors", "Permanent errors have been detected in the following files:\n/mnt/seagate3tb/Install.iso\n/mnt/seagate3tb/some-other-file1.txt\n/mnt/seagate3tb/some-other-file2.txt", parsed.Errors, t)
 	areEqual("error raw", output, parsed.Raw, t)
 
-	var containers []*zpool.Container
-	containers = append(containers, &zpool.Container {
+	var containers []*structs.Container
+	containers = append(containers, &structs.Container {
 		Name:   "seagate3tb",
 		State:  "ONLINE",
 		Read:   "0",
@@ -304,7 +305,7 @@ errors: Permanent errors have been detected in the following files:
 		Status: "",
 		Level:  0,
 	})
-	containers = append(containers, &zpool.Container {
+	containers = append(containers, &structs.Container {
 		Name:   "sda",
 		State:  "ONLINE",
 		Read:   "0",

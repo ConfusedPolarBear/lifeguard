@@ -15,6 +15,7 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/mux"
@@ -50,7 +51,7 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var saved *zpool.Data
+	var saved *structs.Data
 
 	name, ok := GetHMAC(r)
 	if !ok {
@@ -59,7 +60,7 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Grab the keylocation so the load key button can be conditionally enabled
-	saved = &zpool.Data {
+	saved = &structs.Data {
 		Name:       name,
 		Type:       zpool.GetProperties(name, "zfs", "", "type")[0]["type"].Value,
 		Properties: zpool.GetProperties(name, "zfs", "", config.GetString("properties.dataset"))[0],

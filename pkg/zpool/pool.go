@@ -12,10 +12,11 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 )
 
-func ParseZpoolStatus(raw string) *Pool {
-	var pool *Pool
+func ParseZpoolStatus(raw string) *structs.Pool {
+	var pool *structs.Pool
 
 	inConfig := false
 	poolConfig := ""
@@ -64,7 +65,7 @@ func ParseZpoolStatus(raw string) *Pool {
 	poolMap["config"] = poolConfig
 	poolMap["raw"] = raw
 
-	pool = &Pool {
+	pool = &structs.Pool {
 		Name:    poolMap["pool"],
 		State:   poolMap["state"],
 		Status:  useDefault(poolMap["status"], "OK"),
@@ -118,8 +119,8 @@ func ListZpools() []string {
 	return strings.Split(MustExec(cmd), "\n")
 }
 
-func GetProperties(name string, which string, filter string, props string) []map[string]*Property {
-	var pulled []map[string]*Property
+func GetProperties(name string, which string, filter string, props string) []map[string]*structs.Property {
+	var pulled []map[string]*structs.Property
 
 	props = Sanitize(props)
 	rawProps := strings.Split(props, ",")
@@ -167,7 +168,7 @@ func GetProperties(name string, which string, filter string, props string) []map
 			cleaned := strings.Replace(prop, "\n", "", 1)		// The last property will have a newline at the end but to be safe, we'll clean every returned value
 
 			if len(pulled) <= number {
-				blank := make(map[string]*Property)
+				blank := make(map[string]*structs.Property)
 				pulled = append(pulled, blank)
 			}
 
@@ -181,7 +182,7 @@ func GetProperties(name string, which string, filter string, props string) []map
 				hmac = crypto.GenerateHMAC(cleaned)
 			}
 
-			pulled[number][name] = &Property {
+			pulled[number][name] = &structs.Property {
 				Name:  name,
 				Value: cleaned,
 				HMAC:  hmac,
@@ -192,8 +193,8 @@ func GetProperties(name string, which string, filter string, props string) []map
 	return pulled
 }
 
-func ParseAllPools() []*Pool {
-	var pools []*Pool
+func ParseAllPools() []*structs.Pool {
+	var pools []*structs.Pool
 	names := ListZpools()
 
 	if len(names) > 0 && names[0] == "no pools available" {
@@ -211,7 +212,7 @@ func ParseAllPools() []*Pool {
 	return pools
 }
 
-func ParsePool(name string, includeChildren bool) *Pool {
+func ParsePool(name string, includeChildren bool) *structs.Pool {
 	name = Sanitize(name)
 	cmd := append(cmdPoolStatus, name)
 	out := MustExec(cmd)
@@ -293,7 +294,7 @@ func Encode(raw interface{}) []byte {
 	return encoded
 }
 
-func parseContainer(line string) Container {
+func parseContainer(line string) structs.Container {
 	info := strings.Fields(line)
 	name := ""
 	state := ""
@@ -304,7 +305,7 @@ func parseContainer(line string) Container {
 	level := 0
 
 	if len(info) == 0 {
-		return Container {
+		return structs.Container {
 			Level: -1,
 		}
 	}
@@ -329,7 +330,7 @@ func parseContainer(line string) Container {
 		status = strings.TrimSpace(status)
 	}
 
-	return Container {
+	return structs.Container {
 		Name:   name,
 		State:  state,
 		Read:   read,
