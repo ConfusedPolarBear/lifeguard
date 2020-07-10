@@ -19,9 +19,9 @@ export default {
 	data() {
 		return {
 			auth:    false,
+			commit:  '',
 			version: '',
-			commit:  ''
-		}
+		};
 	},
 	methods: {
 		refresh: async function() {
@@ -37,5 +37,5 @@ export default {
 	mounted() {
 		this.refresh();
 	}
-}
+};
 </script>

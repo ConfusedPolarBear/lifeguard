@@ -24,10 +24,12 @@ import copy from 'copy-to-clipboard';
 
 export default {
 	name: 'about',
-	data() { return {
-		bundle: '',
-		copyText: 'Copy to clipboard'
-	} },
+	data() {
+		return {
+			bundle: '',
+			copyText: 'Copy to clipboard'
+		};
+	},
 	methods: {
 		copyBundle: function() {
 			// debug must be on otherwise it doesn't copy in FF 78+
@@ -38,5 +40,5 @@ export default {
 	mounted: async function() {
 		this.bundle = await ApiClient.GetSupportBundle();
 	}
-}
+};
 </script>

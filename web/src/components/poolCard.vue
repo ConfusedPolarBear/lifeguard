@@ -22,7 +22,7 @@ export default {
 				'DEGRADED': 'danger',
 				'FAULTED':  'secondary',
 				'UNAVAIL':  'secondary'
-			}
+			};
 
 			return colors[state];
 		}
@@ -33,5 +33,5 @@ export default {
 			return this.pool.ScanPaused ? 'warning' : '';
 		}
 	}
-}
+};
 </script>

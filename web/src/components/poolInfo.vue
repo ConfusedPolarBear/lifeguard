@@ -38,9 +38,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<b-card header="Devices">
 			<b-progress height="2rem">
-    			<b-progress-bar :label="poolState.used | prettyPrint('used')" :value="poolState.used" :max="poolState.max" variant="warning"></b-progress-bar>
-      			<b-progress-bar :label="poolState.avail | prettyPrint('avail')" :value="poolState.avail" :max="poolState.max"  variant="success"></b-progress-bar>
-    		</b-progress>
+				<b-progress-bar :label="poolState.used | prettyPrint('used')" :value="poolState.used" :max="poolState.max" variant="warning"></b-progress-bar>
+				<b-progress-bar :label="poolState.avail | prettyPrint('avail')" :value="poolState.avail" :max="poolState.max"  variant="success"></b-progress-bar>
+			</b-progress>
 
 			<br>
 			<b-button-toolbar>
@@ -54,11 +54,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<br>
 			<b-table outlined hover :fields="fields['Pool']" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
-        			<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
-    			</template>
+					<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
+				</template>
 				<template v-slot:cell(state)="data">
-        			<rainbow-state :state="data.item.State"></rainbow-state>
-    			</template>
+					<rainbow-state :state="data.item.State"></rainbow-state>
+				</template>
 			</b-table>
 		</b-card>
 
@@ -73,42 +73,44 @@ import * as ApiClient from '../apiClient.js';
 
 export default {
 	name: 'poolInfo',
-	data() { return {
-		loading: true,
-		error: false,
-		poolName: this.$route.params.poolName,
-		pool: {},
-		fields: {
-			// TODO: Conditionally render the status column when at least one vdev member has data in that attribute
-			'Pool': [
-				'Name',
-				'State',
-				'Read',
-				'Write',
-				'Cksum'
-			]
-		},
-		keyLoad: {
-			'hmac': '',
-			'dataset': '',
-			'passphrase': ''
-		},
-		refresh: {
-			'interval': 0,
-			'pause': false
-		},
-		poolState: {
-			'avail': 0,
-			'used': 0,
-			'max': 0,
-			'scrub': 'Scrub'
-		},
-		browse: {
-			'show': false,
-			'hmac': '',
-			'key': 0
-		}
-	} },
+	data() {
+		return {
+			loading: true,
+			error: false,
+			poolName: this.$route.params.poolName,
+			pool: {},
+			fields: {
+				// TODO: Conditionally render the status column when at least one vdev member has data in that attribute
+				'Pool': [
+					'Name',
+					'State',
+					'Read',
+					'Write',
+					'Cksum'
+				]
+			},
+			keyLoad: {
+				'hmac': '',
+				'dataset': '',
+				'passphrase': ''
+			},
+			refresh: {
+				'interval': 0,
+				'pause': false
+			},
+			poolState: {
+				'avail': 0,
+				'used': 0,
+				'max': 0,
+				'scrub': 'Scrub'
+			},
+			browse: {
+				'show': false,
+				'hmac': '',
+				'key': 0
+			}
+		};
+	},
 	methods: {
 		update: async function() {
 			if (this.refresh.pause) {
@@ -132,7 +134,7 @@ export default {
 			this.poolState.used  = Number(this.pool.Datasets[0]['used'].Value);
 			this.poolState.avail = Number(this.pool.Datasets[0]['avail'].Value);
 			this.poolState.max = this.poolState.used + this.poolState.avail;
-			this.poolState.scrub = (this.pool.Scanned === 0) ? 'Scrub' : 'Pause scrub';
+			this.poolState.scrub = (this.pool.Scanned === 0 || this.pool.ScanPaused) ? 'Scrub' : 'Pause scrub';
 		},
 		dataSelected: function(items, filter) {
 			this.refresh.pause = items.length !== 0 && filter !== '';
@@ -153,44 +155,44 @@ export default {
 				let res = '';
 
 				switch (event) {
-					case 'browse':
-						this.browse['key'] += 1;		// force re-render
-						this.browse['show'] = true;
-						this.browse['hmac'] = hmac;
-						break;
+				case 'browse':
+					this.browse['key'] += 1;		// force re-render
+					this.browse['show'] = true;
+					this.browse['hmac'] = hmac;
+					break;
 
-					case 'mount':
-						res = await ApiClient.Mount(hmac);
-						break;
+				case 'mount':
+					res = await ApiClient.Mount(hmac);
+					break;
 
-					case 'unmount':
-						res = await ApiClient.Unmount(hmac);
-						break;
+				case 'unmount':
+					res = await ApiClient.Unmount(hmac);
+					break;
 
-					case 'load-key':
-						this.keyLoad = {
-							'hmac': hmac,
-							'dataset': name,
-							'passphrase': ''
-						};
-						res = '';
+				case 'load-key':
+					this.keyLoad = {
+						'hmac': hmac,
+						'dataset': name,
+						'passphrase': ''
+					};
+					res = '';
 
-						this.$bvModal.show('modalKeyLoad');
-						setTimeout(() => { document.getElementById('keyLoadPassphrase').focus(); }, 250);
+					this.$bvModal.show('modalKeyLoad');
+					setTimeout(() => { document.getElementById('keyLoadPassphrase').focus(); }, 250);
 
-						break;
+					break;
 
-					case 'unload-key':
-						res = await ApiClient.UnloadKey(hmac);
-						break;
+				case 'unload-key':
+					res = await ApiClient.UnloadKey(hmac);
+					break;
 
-					case 'scrub':
-						res = await ApiClient.Scrub(hmac);
-						break;
+				case 'scrub':
+					res = await ApiClient.Scrub(hmac);
+					break;
 
-					case 'pause-scrub':
-						res = await ApiClient.PauseScrub(hmac);
-						break;
+				case 'pause-scrub':
+					res = await ApiClient.PauseScrub(hmac);
+					break;
 				}
 
 				this.update();
@@ -229,7 +231,7 @@ export default {
 		},
 		scrub: function(e) {
 			let name = e.target.dataset.name;
-			if (this.pool.Scanned === 0) {
+			if (this.pool.Scanned === 0 || this.pool.ScanPaused) {
 				this.dataClick('scrub', name);
 			} else {
 				this.dataClick('pause-scrub', name);

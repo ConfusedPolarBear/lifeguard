@@ -27,14 +27,14 @@ export default {
 			invalid:  false,
 			password: '',
 			username: '',
-		}
+		};
 	},
 	methods: {
-		login: function(e) {
+		login: async function() {
 			event.preventDefault();
 
-			ApiClient.Login(this.username, this.password)
-			.then(this.update);
+			await ApiClient.Login(this.username, this.password);
+			this.update();
 		},
 		update: async function() {
 			let info = await ApiClient.GetInfo();
@@ -54,5 +54,5 @@ export default {
 	mounted() {
 		this.update();
 	}
-}
+};
 </script>

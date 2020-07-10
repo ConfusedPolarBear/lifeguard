@@ -16,13 +16,13 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import app from './components/app.vue';
 import rainbowState from './components/rainbowState.vue';
 import pools from './components/pools.vue';
-import poolCard from './components/poolCard.vue'
+import poolCard from './components/poolCard.vue';
 import poolData from './components/poolData.vue';
 import webHeader from './components/webHeader.vue';
 import fileBrowser from './components/fileBrowser.vue';
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 Vue.config.devtools = true;
 
@@ -77,19 +77,19 @@ const routes = [
 		component: require('./components/home.vue').default
 	},
 	{
-		path: "/about",
+		path: '/about',
 		component: require('./components/about.vue').default
 	},
 	{
-		path: "/pools",
+		path: '/pools',
 		component: require('./components/pools.vue').default
 	},
 	{
-		path: "/pool/:poolName",
+		path: '/pool/:poolName',
 		component: require('./components/poolInfo.vue').default
 	},
 	{
-		path: "/data",
+		path: '/data',
 		component: require('./components/data.vue').default
 	},
 	{
@@ -104,6 +104,6 @@ const router = new VueRouter({
 
 new Vue({
 	el: '#app',
-	router,
-	render: h => h(app)
+	render: h => h(app),
+	router
 });

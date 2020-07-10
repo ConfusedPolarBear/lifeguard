@@ -14,7 +14,7 @@ export default {
 				'OFFLINE':  'red',
 				'UNAVAIL':  'blue',
 				'DEGRADED': 'rgb(237, 174, 0)',
-			}
+			};
 
 			return colors[this.state];
 		}

@@ -55,7 +55,13 @@ export async function GetInfo() {
 }
 
 export async function GetPool(id) {
-	return await fetch('/api/v0/pool/' + encodeURIComponent(id)).then(res => res.json());
+	const res = await fetch('/api/v0/pool/' + encodeURIComponent(id));
+	return await res.json();
+}
+
+export async function GetPools() {
+	const res = await fetch('/api/v0/pools');
+	return await res.json();
 }
 
 export async function GetFields(table) {
@@ -64,10 +70,10 @@ export async function GetFields(table) {
 	}
 
 	return await fetch('/api/v0/properties/' + table)
-	.then(res => {
-		cachedProperties[table] = res.json();
-		return cachedProperties[table];
-	});
+		.then(res => {
+			cachedProperties[table] = res.json();
+			return cachedProperties[table];
+		});
 }
 
 export async function GetSupportBundle() {
@@ -76,9 +82,9 @@ export async function GetSupportBundle() {
 
 async function getText(url) {
 	return await fetch(url)
-	.then((res) => {
-		return Promise.resolve(res.text());
-	});
+		.then((res) => {
+			return Promise.resolve(res.text());
+		});
 }
 
 // TODO: is there a better way to encode these URLs?
@@ -111,7 +117,6 @@ export async function UnloadKey(id) {
 
 export async function Browse(id) {
 	const res = await fetch('/api/v0/files/browse/' + encodeURIComponent(id));
-
 	return await res.json();
 }
 

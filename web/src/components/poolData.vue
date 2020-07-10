@@ -29,47 +29,49 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 export default {
-    name: 'poolData',
-    props: [ 'pool', 'section', 'fields' ],
-    data() { return {
-        filter: '',
-        selected: [],
-    } },
-    computed: {
-        disableToolbar: function() {
-            return this.selected.length === 0;
-        }
-    },
-    methods: {
-        onSelect: function(items) {
-            this.selected = items;
+	name: 'poolData',
+	props: [ 'pool', 'section', 'fields' ],
+	data() {
+		return {
+			filter: '',
+			selected: [],
+		};
+	},
+	computed: {
+		disableToolbar: function() {
+			return this.selected.length === 0;
+		}
+	},
+	methods: {
+		onSelect: function(items) {
+			this.selected = items;
 
-            // Bug fix: If a filter is active and a selection is made, the selection will be cleared on the next background refresh
-            this.$emit('select', items, this.filter);
-        },
-        propertyEqual: function(prop, state) {
-            if (this.selected.length > 1) {
-                // TODO: implement this for multiple datasets
-                return false;
-            }
+			// Bug fix: If a filter is active and a selection is made, the selection will be cleared on the next background refresh
+			this.$emit('select', items, this.filter);
+		},
+		propertyEqual: function(prop, state) {
+			if (this.selected.length > 1) {
+				// TODO: implement this for multiple datasets
+				return false;
+			}
 
-            else if (this.selected.length === 0) {
-                return true;
-            }
+			else if (this.selected.length === 0) {
+				return true;
+			}
 
-            return this.selected[0][prop].Value === state;
-        },
-        mount: function() {
-            let event = this.propertyEqual('mounted', 'no') ? 'mount' : 'unmount';
-            this.$emit('click', event, this.selected[0].name.Value);
-        },
-        loadKey: function() {
-            let event = this.propertyEqual('keystatus', 'unavailable') ? 'load-key' : 'unload-key';
-            this.$emit('click', event, this.selected[0].name.Value);
-        },
-        browse: function() {
-            this.$emit('click', 'browse', this.selected[0].name.Value);
-        }
-    }
-}
+			return this.selected[0][prop].Value === state;
+		},
+		mount: function() {
+			let event = this.propertyEqual('mounted', 'no') ? 'mount' : 'unmount';
+			this.$emit('click', event, this.selected[0].name.Value);
+		},
+		loadKey: function() {
+			let event = this.propertyEqual('keystatus', 'unavailable') ? 'load-key' : 'unload-key';
+			this.$emit('click', event, this.selected[0].name.Value);
+		},
+		browse: function() {
+			this.$emit('click', 'browse', this.selected[0].name.Value);
+		}
+	}
+};
 </script>

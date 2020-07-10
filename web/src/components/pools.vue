@@ -22,24 +22,25 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </div></template>
 
 <script>
+import * as ApiClient from '../apiClient.js';
+
 export default {
 	name: 'pools',
-	data() { return {
-		error: false,
-		pools: [],
-		interval: 0,
-	}},
+	data() {
+		return {
+			error: false,
+			pools: [],
+			interval: 0,
+		};
+	},
 	methods: {
-		refresh: function() {
-			fetch('/api/v0/pools')
-			.then(res => res.json())
-			.then(res => {
-				this.pools = res;
-			})
-			.catch(e => {
+		refresh: async function() {
+			try {
+				this.pools = await ApiClient.GetPools();
+			} catch(e) {
 				console.error(e);
 				this.error = true;
-			});
+			}
 		}
 	},
 	mounted() {
