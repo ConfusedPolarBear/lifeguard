@@ -22,3 +22,7 @@ tr, th {
 	/* hide the dashed outline around selected items */
 	outline: none;
 }
+
+:disabled {
+	cursor: not-allowed;
+}

@@ -38,12 +38,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<b-card header="Devices">
 			<b-progress height="2rem">
-    			<b-progress-bar :label="used | prettyPrint('used')" :value="used" :max="max" variant="warning"></b-progress-bar>
-      			<b-progress-bar :label="avail | prettyPrint('avail')" :value="avail" :max="max"  variant="success"></b-progress-bar>
+    			<b-progress-bar :label="poolState.used | prettyPrint('used')" :value="poolState.used" :max="poolState.max" variant="warning"></b-progress-bar>
+      			<b-progress-bar :label="poolState.avail | prettyPrint('avail')" :value="poolState.avail" :max="poolState.max"  variant="success"></b-progress-bar>
     		</b-progress>
 
 			<br>
+			<b-button-toolbar>
+				<b-button-group>
+					<b-button @click="scrub" :data-name="poolName">{{ poolState.scrub }}</b-button>
+					<b-button disabled>Trim</b-button>
+					<b-button disabled>iostat</b-button>
+				</b-button-group>
+			</b-button-toolbar>
 
+			<br>
 			<b-table outlined hover :fields="fields['Pool']" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
         			<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
@@ -85,11 +93,16 @@ export default {
 			'dataset': '',
 			'passphrase': ''
 		},
-		interval: 0,
-		pauseRefresh: false,
-		avail: 0,
-		used: 0,
-		max: 0,
+		refresh: {
+			'interval': 0,
+			'pause': false
+		},
+		poolState: {
+			'avail': 0,
+			'used': 0,
+			'max': 0,
+			'scrub': 'Scrub'
+		},
 		browse: {
 			'show': false,
 			'hmac': '',
@@ -97,8 +110,8 @@ export default {
 		}
 	} },
 	methods: {
-		refresh: async function() {
-			if (this.pauseRefresh) {
+		update: async function() {
+			if (this.refresh.pause) {
 				console.info('Refresh paused (filtered selection)');
 				return;
 			}
@@ -116,12 +129,13 @@ export default {
 			}
 
 			// The first dataset is always the pool itself, extract the used/available space for the progress bar
-			this.used  = Number(this.pool.Datasets[0]['used'].Value);
-			this.avail = Number(this.pool.Datasets[0]['avail'].Value);
-			this.max = this.used + this.avail;
+			this.poolState.used  = Number(this.pool.Datasets[0]['used'].Value);
+			this.poolState.avail = Number(this.pool.Datasets[0]['avail'].Value);
+			this.poolState.max = this.poolState.used + this.poolState.avail;
+			this.poolState.scrub = (this.pool.Scanned === 0) ? 'Scrub' : 'Pause scrub';
 		},
 		dataSelected: function(items, filter) {
-			this.pauseRefresh = items.length !== 0 && filter !== '';
+			this.refresh.pause = items.length !== 0 && filter !== '';
 		},
 		nameToHMAC: function(name) {
 			let dataset = this.pool.Datasets.find((x) => { return x.name.Value === name; });
@@ -169,9 +183,17 @@ export default {
 					case 'unload-key':
 						res = await ApiClient.UnloadKey(hmac);
 						break;
+
+					case 'scrub':
+						res = await ApiClient.Scrub(hmac);
+						break;
+
+					case 'pause-scrub':
+						res = await ApiClient.PauseScrub(hmac);
+						break;
 				}
 
-				this.refresh();
+				this.update();
 
 				if (res.length <= 3) {
 					return;
@@ -184,7 +206,7 @@ export default {
 		},
 		doLoadKey: async function() {
 			let res = await ApiClient.LoadKey(this.keyLoad['hmac'], this.keyLoad['passphrase']);
-			this.refresh();
+			this.update();
 
 			if (res.length <= 3) {
 				return;
@@ -205,6 +227,14 @@ export default {
 				this.doLoadKey();
 			});
 		},
+		scrub: function(e) {
+			let name = e.target.dataset.name;
+			if (this.pool.Scanned === 0) {
+				this.dataClick('scrub', name);
+			} else {
+				this.dataClick('pause-scrub', name);
+			}
+		},
 		popup: function(title, msg) {
 			this.$bvModal.msgBoxOk(msg, {
 				title: title,
@@ -214,11 +244,11 @@ export default {
 		}
 	},
 	created() {
-		this.refresh();
-		this.interval = setInterval(this.refresh, 5 * 1000);
+		this.update();
+		this.refresh.interval = setInterval(this.update, 5 * 1000);
 	},
 	beforeDestroy() {
-		clearInterval(this.interval);
+		clearInterval(this.refresh.interval);
 	}
 };
 </script>

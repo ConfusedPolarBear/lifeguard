@@ -27,7 +27,7 @@ func UpdatePoolState(pool string, current *structs.Pool, previous *structs.Pool)
 	 *     Pool container state change
 	*/
 
-	// TODO: telegram library: https://github.com/go-telegram-bot-api/telegram-bot-api
+	// TODO: telegram library: https://github.com/tucnak/telebot
 
 	// Notification 1: Pool wide state change
 	if previous.State != current.State {

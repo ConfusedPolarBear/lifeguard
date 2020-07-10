@@ -114,3 +114,13 @@ export async function Browse(id) {
 
 	return await res.json();
 }
+
+export async function Scrub(id) {
+	const res = await Post('/api/v0/pool/' + encodeURIComponent(id) + '/scrub/start');
+	return await res.text();
+}
+
+export async function PauseScrub(id) {
+	const res = await Post('/api/v0/pool/' + encodeURIComponent(id) + '/scrub/pause');
+	return await res.text();
+}
