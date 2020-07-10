@@ -45,9 +45,7 @@ Vue.filter('prettyPrint', function(value, name) {
 	if (numbers.indexOf(name) !== -1) {
 		if (value === '-') {
 			return value;
-		}
-
-		else if (value == '0') {
+		} else if (value == '0') {
 			return '0B';
 		}
 
@@ -62,9 +60,7 @@ Vue.filter('prettyPrint', function(value, name) {
 		size = size.toFixed(2);
 
 		return size.toString() + suffix[index];
-	}
-
-	else if (percents.indexOf(name) !== -1) {
+	} else if (percents.indexOf(name) !== -1) {
 		return value + '%';
 	}
 

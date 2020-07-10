@@ -37,7 +37,7 @@ export default {
 		refresh: async function() {
 			try {
 				this.pools = await ApiClient.GetPools();
-			} catch(e) {
+			} catch (e) {
 				console.error(e);
 				this.error = true;
 			}

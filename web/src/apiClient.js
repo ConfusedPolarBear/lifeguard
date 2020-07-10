@@ -46,9 +46,7 @@ export function Logout() {
 export async function GetInfo() {
 	if (cachedInfo.Authenticated !== undefined) {
 		return cachedInfo;
-	}
-
-	else {
+	} else {
 		cachedInfo = await fetch('/api/v0/info').then(res => res.json());
 		return cachedInfo;
 	}

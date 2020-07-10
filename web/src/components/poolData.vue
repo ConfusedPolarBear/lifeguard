@@ -53,9 +53,7 @@ export default {
 			if (this.selected.length > 1) {
 				// TODO: implement this for multiple datasets
 				return false;
-			}
-
-			else if (this.selected.length === 0) {
+			} else if (this.selected.length === 0) {
 				return true;
 			}
 

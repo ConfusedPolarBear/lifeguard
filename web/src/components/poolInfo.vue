@@ -140,7 +140,9 @@ export default {
 			this.refresh.pause = items.length !== 0 && filter !== '';
 		},
 		nameToHMAC: function(name) {
-			let dataset = this.pool.Datasets.find((x) => { return x.name.Value === name; });
+			let dataset = this.pool.Datasets.find((x) => {
+				return x.name.Value === name;
+			});
 			
 			if (dataset === undefined) {
 				throw Error('Could not find dataset with name ' + name);
@@ -178,7 +180,9 @@ export default {
 					res = '';
 
 					this.$bvModal.show('modalKeyLoad');
-					setTimeout(() => { document.getElementById('keyLoadPassphrase').focus(); }, 250);
+					setTimeout(() => {
+						document.getElementById('keyLoadPassphrase').focus(); 
+					}, 250);
 
 					break;
 
