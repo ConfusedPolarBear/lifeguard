@@ -1,7 +1,6 @@
 CONFIG=github.com/ConfusedPolarBear/lifeguard/pkg/config
 ARCHIVE=lifeguard.tar
 
-TIME := $(shell date)
 VERSION := $(shell go version)
 COMMIT := $(shell git rev-list -1 HEAD)
 
@@ -9,7 +8,6 @@ COMMIT := $(shell git rev-list -1 HEAD)
 MODIFIED := $(shell git diff --no-ext-diff --quiet || echo " (modified)")
 
 FLAGS="-X '$(CONFIG).Commit=$(COMMIT)'\
-	-X '$(CONFIG).BuildTime=$(TIME)'\
 	-X '$(CONFIG).GoVersion=$(VERSION)'\
 	-X '$(CONFIG).Modified=$(MODIFIED)'"
 
@@ -18,7 +16,7 @@ prod: test server browser-prod web-prod
 backend: server browser
 
 server:
-	go build -v -ldflags $(FLAGS)
+	go build -v -ldflags $(FLAGS) -asmflags -trimpath
 
 browser-prod:
 	make -C cmd/browser prod

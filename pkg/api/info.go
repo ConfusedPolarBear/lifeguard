@@ -29,7 +29,6 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 		info["ZFSVersion"] = zpool.GetVersion()
 
 		info["Commit"] = config.Commit + config.Modified
-		info["BuildTime"] = config.BuildTime
 		info["GoVersion"] = config.GoVersion
 	}
 
@@ -44,7 +43,7 @@ func supportHandler(w http.ResponseWriter, r *http.Request) {
 
 	userAgent := r.UserAgent()
 	zfsVersion := zpool.GetVersion()
-	buildInfo := fmt.Sprintf("commit %s built at %s with %s", config.Commit + config.Modified, config.BuildTime, config.GoVersion)
+	buildInfo := fmt.Sprintf("commit %s compiled with %s", config.Commit + config.Modified, config.GoVersion)
 	lsb := zpool.MustExec([]string { "/usr/bin/lsb_release", "-d"})
 	kernel := zpool.MustExec([]string { "/bin/uname", "-r"})
 
