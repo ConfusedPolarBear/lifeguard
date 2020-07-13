@@ -8,13 +8,25 @@ package notifications
 import (
 	"fmt"
 	"log"
+	"log/syslog"
 	"strings"
 	"time"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 )
 
-var Notifications []structs.Notification
+// Make a slice with length 0 so it encodes as [] and not null
+var Notifications = make([]structs.Notification, 0)
+var syslogger *log.Logger
+
+func Initialize() {
+	temp, err := syslog.NewLogger(syslog.LOG_WARNING | syslog.LOG_DAEMON, 0)
+	if err != nil {
+		log.Printf("Warning: unable to open syslog: %s", err)
+	} else {
+		syslogger = temp
+	}
+}
 
 func UpdatePoolState(pool string, current *structs.Pool, previous *structs.Pool) {
 	// If this is the first update, there won't be a previous pool state to compare against
@@ -26,8 +38,6 @@ func UpdatePoolState(pool string, current *structs.Pool, previous *structs.Pool)
 	 *     Pool container read/write/checksum count change
 	 *     Pool container state change
 	*/
-
-	// TODO: telegram library: https://github.com/tucnak/telebot
 
 	// Notification 1: Pool wide state change
 	if previous.State != current.State {
@@ -66,7 +76,13 @@ func SendNotification(id int, severity string, message string) {
 		Message: message,
 	}
 
+	Notifications = append(Notifications, n)
+
 	log.Printf("Got notification %s", n.String())
+
+	if syslogger != nil {
+		syslogger.Printf("Notification %s", n)
+	}
 }
 
 func CleanupString(raw string) string {

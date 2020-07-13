@@ -1,8 +1,6 @@
 // Copyright 2020 Matt Montgomery
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// TODO: add an installation note about permissions that need to be given to the user the program runs as
-
 package api
 
 import (

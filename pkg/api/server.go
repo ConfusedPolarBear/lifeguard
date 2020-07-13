@@ -92,6 +92,7 @@ func Setup() {
 
 	SetupInfo(r)
 	SetupDataset(r)
+	SetupNotifications(r)
 
 	// Static web UI
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/dist"))).Methods("GET")

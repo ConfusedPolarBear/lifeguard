@@ -3,8 +3,8 @@
 		<b-navbar-brand to="/">LifeGuard</b-navbar-brand>
 		<b-navbar-nav>
 			<b-nav-item to="/pools">Pools</b-nav-item>
-			<b-nav-item to="/snapshots">Snapshots</b-nav-item>
 			<b-nav-item to="/data">Data</b-nav-item>
+			<b-nav-item to="/logs">Logs</b-nav-item>
 			<b-nav-item to="/about">About</b-nav-item>
 			<b-nav-item to="/logout" v-if="this.auth">Logout</b-nav-item>
 		</b-navbar-nav>

@@ -89,6 +89,10 @@ const routes = [
 		component: require('./components/data.vue').default
 	},
 	{
+		path: '/logs',
+		component: require('./components/logs.vue').default
+	},
+	{
 		path: '/logout',
 		component: require('./components/logout.vue').default
 	}

@@ -127,3 +127,10 @@ export async function PauseScrub(id) {
 	const res = await Post('/api/v0/pool/' + encodeURIComponent(id) + '/scrub/pause');
 	return await res.text();
 }
+
+export async function GetNotifications() {
+	const res = await fetch('/api/v0/notifications/list');
+	
+	let list = await res.json();
+	return list.reverse();
+}
