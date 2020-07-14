@@ -13,7 +13,6 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
-	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
@@ -25,7 +24,6 @@ import (
 var (
 	key = []byte("")			// use a temporary key so key and store are accessible throughout the api package
 	store = sessions.NewCookieStore(key)
-	credentials = make(map[string]structs.User)
 )
 
 // This is used by getPropertiesHandler to construct the fields object. The custom JSON fields are needed because go won't export struct members with a lowercase name.
@@ -68,8 +66,6 @@ func Setup() {
 		fmt.Println()
 		log.Printf("Password successfully hashed and saved")
 	}
-
-	credentials = config.GetUsers()
 
 	store.Options = &sessions.Options{
 		Path:     "/",
@@ -276,7 +272,7 @@ func getAuth(r *http.Request) (string, string) {
 
 func checkAuth(username string, password string) (bool, string) {
 	goodUsername := true
-	user, ok := credentials[username]
+	user, ok := config.GetUsers()[username]
 
 	if !ok {
 		log.Printf("Unknown username %s", username)
