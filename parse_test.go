@@ -5,6 +5,7 @@ package main
 
 import (
 	"testing"
+	"os"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
@@ -31,6 +32,11 @@ func areContainersEqual(name string, expected []*structs.Container, actual []*st
 			test.Errorf("Error testing %s in container %d - expected %#v but found %#v.", name, index, truth, compare)
 		}
 	}
+}
+
+func TestMain(m *testing.M) {
+	zpool.IsTest = true
+	os.Exit(m.Run())
 }
 
 func TestHealthy(t *testing.T) {

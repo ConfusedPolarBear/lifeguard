@@ -16,6 +16,7 @@ import (
 	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 )
 
+var IsTest = false
 var poolHistory = make(map[string]*structs.Pool)
 
 func ParseZpoolStatus(raw string) *structs.Pool {
@@ -95,7 +96,7 @@ func ParseZpoolStatus(raw string) *structs.Pool {
 		}
 	}
 
-	if config.GetBool("debug.parse") {
+	if IsTest || config.GetBool("debug.parse") {
 		log.Printf("==================== Processed zpool output =======================\n")
 		for key, value := range poolMap {
 			log.Printf("'%s' => '%s'\n", key, value)
@@ -160,7 +161,7 @@ func GetProperties(name string, which string, filter string, props string) []map
 	// The order is determined by the properties passed to the -o flag.
 	output := MustExec(cmd)
 
-	if config.GetBool("debug.parse") {
+	if IsTest || config.GetBool("debug.parse") {
 		log.Printf("Raw output of %v: '%s'", cmd, output)
 	}
 
