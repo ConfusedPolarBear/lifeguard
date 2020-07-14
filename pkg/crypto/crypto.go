@@ -20,7 +20,7 @@ var known sync.Map
 
 func GenerateHMAC(plaintext string) string {
 	data := []byte(plaintext)
-	secret := config.GetString("security.session_key")
+	secret := config.GetString("keys.session")		// TODO: separate out to a different key
 	h := hmac.New(sha256.New, []byte(secret))
 
 	h.Write(data)

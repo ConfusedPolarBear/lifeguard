@@ -13,6 +13,7 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
@@ -24,7 +25,7 @@ import (
 var (
 	key = []byte("")			// use a temporary key so key and store are accessible throughout the api package
 	store = sessions.NewCookieStore(key)
-	credentials = make(map[string]string)
+	credentials = make(map[string]structs.User)
 )
 
 // This is used by getPropertiesHandler to construct the fields object. The custom JSON fields are needed because go won't export struct members with a lowercase name.
@@ -35,13 +36,13 @@ type Column struct {
 }
 
 func Setup() {
-	port := config.GetString("server.bind")
+	port := config.GetString("bind")
 	if port == "" {
-		log.Printf("Warning: No option was specified for server.bind, listening on port 5120 (all interfaces)")
+		log.Printf("Warning: No option was specified for server bind address, listening on port 5120 (all interfaces)")
 		port = ":5120"
 	}
 
-	key = []byte(config.GetString("security.session_key"))
+	key = []byte(config.GetString("keys.session"))
 
 	// Validate session options
 	if len(key) != 32 {
@@ -49,13 +50,12 @@ func Setup() {
 
 		temp := strings.ToUpper(crypto.GetRandom(16))
 		key = []byte(temp)
-		config.Set("security.session_key", temp)
+		config.Set("keys.session", temp)
 	}
 
 	store = sessions.NewCookieStore(key)
 
-	adminHash := config.GetString("security.admin")
-	if adminHash == "" {
+	if !config.IsUser("admin") {
 		fmt.Print("Enter new password for user admin: ")
 
 		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
@@ -63,14 +63,13 @@ func Setup() {
 			log.Fatalf("Unable to get password: %s", err)
 		}
 
-		adminHash = crypto.HashPassword(string(bytePassword))
-		config.Set("security.admin", adminHash)
+		config.CreateUser("admin", crypto.HashPassword(string(bytePassword)), nil)
 
 		fmt.Println()
 		log.Printf("Password successfully hashed and saved")
 	}
 
-	credentials["admin"] = adminHash
+	credentials = config.GetUsers()
 
 	store.Options = &sessions.Options{
 		Path:     "/",
@@ -277,17 +276,17 @@ func getAuth(r *http.Request) (string, string) {
 
 func checkAuth(username string, password string) (bool, string) {
 	goodUsername := true
-	loadedHash, ok := credentials[username]
+	user, ok := credentials[username]
 
 	if !ok {
 		log.Printf("Unknown username %s", username)
 
 		// Prevent user enumeration attacks
-		loadedHash = "$2a$12$000000000000.0000000000000000000000000000000000000000"
+		user.Password = "$2a$12$000000000000.0000000000000000000000000000000000000000"
 		goodUsername = false
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(loadedHash), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
 		if goodUsername {

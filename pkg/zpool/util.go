@@ -35,7 +35,7 @@ func execInternal(raw []string, stdin []byte) (string, string, error) {
 	var stdout, stderr bytes.Buffer
 
 	if raw[0] != "./browser" {
-		raw = append([]string { config.GetString("exec.timeout_path"), config.GetString("exec.timeout") }, raw...)
+		raw = append([]string { config.GetString("timeout.path"), config.GetString("timeout.value") }, raw...)
 	}
 	
 	cmd := exec.Command(raw[0], raw[1:]...)
