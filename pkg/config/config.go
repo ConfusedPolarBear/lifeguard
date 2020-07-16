@@ -27,7 +27,7 @@ func Load() {
 	}
 
 	prepare("create table if not exists config (Key string primary key unique, Value string not null)").Exec()
-	prepare("create table if not exists auth (Username string primary key unique, Password string not null, TwoFactor string)").Exec()
+	prepare("create table if not exists auth (Username string primary key unique, Password string not null, TwoFactorProvider string, TwoFactorData string)").Exec()
 
 	if loadLegacy() {
 		path := viper.ConfigFileUsed()
@@ -41,15 +41,6 @@ func Load() {
 		os.Rename(path, dst)
 		log.Printf("Legacy configuration renamed: %s -> %s", path, dst)
 	}
-}
-
-func prepare(raw string) *sql.Stmt {
-	stmt, err := db.Prepare(raw)
-	if err != nil {
-		log.Fatalf("Unable to prepare statement %s: %s", raw, err)
-	}
-
-	return stmt
 }
 
 func loadLegacy() bool {

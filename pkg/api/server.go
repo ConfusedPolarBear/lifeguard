@@ -79,6 +79,8 @@ func Setup() {
 	// Security
 	r.HandleFunc("/api/v0/authenticate", loginHandler).Methods("POST")
 	r.HandleFunc("/api/v0/logout", logoutHandler).Methods("POST")
+	r.HandleFunc("/api/v0/tfa/enabled", checkTFAEnabledHandler).Methods("GET")
+	r.HandleFunc("/api/v0/tfa/challenge", tfaChallengeHandler).Methods("GET")
 
 	// Pool
 	r.HandleFunc("/api/v0/pool/{pool}", getPoolHandler).Methods("GET")
@@ -88,6 +90,7 @@ func Setup() {
 	SetupInfo(r)
 	SetupDataset(r)
 	SetupNotifications(r)
+	SetupTOTP(r)
 
 	// Static web UI
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/dist"))).Methods("GET")
@@ -109,6 +112,7 @@ func Setup() {
 func securityHeadersMw(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: eliminate data URLs for images
+		// TODO: allow unsafe-eval in dev? disabling eval breaks vue dev tools in firefox 78.0.1
 		w.Header().Set("Content-Security-Policy", `default-src 'self';
 			base-uri 'none';
 			block-all-mixed-content;
@@ -228,9 +232,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	sentUsername, password := getAuth(r)
 	auth, username := checkAuth(sentUsername, password)
+	partialAuth := "full"
 	
 	session.Values["authenticated"] = auth
 	session.Values["username"] = username
+
+	if auth && config.IsTwoFactorEnabled(username) {
+		partialAuth = "partial"
+		session.Values["partialAuth"] = username	
+		session.Values["authenticated"] = false
+	}
 
 	err := session.Save(r, w)
 	if err != nil {
@@ -240,8 +251,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if auth {
-		log.Printf("%s authenticated from %s", username, r.RemoteAddr)
-		http.Error(w, "OK", http.StatusOK)
+		log.Printf("%s authenticated (%s) from %s", username, partialAuth, r.RemoteAddr)
+		http.Error(w, partialAuth, http.StatusOK)
 
 	} else {
 		log.Printf("WARNING %s failed to authenticate as %s", r.RemoteAddr, sentUsername)
@@ -261,6 +272,32 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Error(w, "", http.StatusOK)
+}
+
+func tfaChallengeHandler(w http.ResponseWriter, r *http.Request) {
+	username := getPartialAuth(r)
+	if username == "" {
+		http.Error(w, "Invalid state", http.StatusForbidden)
+		return
+	}
+
+	provider := config.GetTwoFactorProvider(username)
+	challenge := ""
+
+	// challenge will be needed for fido2
+	if provider == "totp" {
+		challenge = ""
+	}
+
+	ret := struct {
+		Provider string
+		Challenge string
+	} {
+		provider,
+		challenge,
+	}
+
+	w.Write(zpool.Encode(ret))
 }
 
 func getAuth(r *http.Request) (string, string) {
@@ -347,4 +384,32 @@ func getUsername(r *http.Request, w http.ResponseWriter) string {
 	}
 
 	return username
+}
+
+func getPartialAuth(r *http.Request) string {
+	session := getSession(r)
+	partial, ok := "", false
+
+	if partial, ok = session.Values["partialAuth"].(string); !ok {
+		return ""
+	}
+
+	return partial
+}
+
+func checkTFAEnabledHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsernameQuiet(r)
+	if username == "" {
+		return
+	}
+
+	enabled := config.IsTwoFactorEnabled(username)
+
+	ret := struct {
+		Enabled bool
+	} {
+		enabled,
+	}
+
+	w.Write(zpool.Encode(ret))
 }

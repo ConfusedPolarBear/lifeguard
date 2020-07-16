@@ -4,7 +4,8 @@
 package structs
 
 type User struct {
-	Username string
-	Password string
-	TwoFactor string
+	Username          string
+	Password          string
+	TwoFactorProvider string
+	TwoFactorData     string
 }

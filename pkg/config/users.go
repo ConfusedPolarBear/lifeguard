@@ -18,7 +18,7 @@ func IsUser(username string) bool {
 	stmt := prepare("select count(*) from auth where Username = ?")
 	defer stmt.Close()
 
-	// will never error
+	// This doesn't need error checking as it can only return the number of rows (or zero)
 	stmt.QueryRow(username).Scan(&count)
 
 	return count != 0
@@ -27,20 +27,22 @@ func IsUser(username string) bool {
 func GetUser(raw string) structs.User {
 	var username string
 	var password string
-	var twofactor string
+	var tfaProvider string
+	var tfaData string
 
 	stmt := prepare("select * from auth where Username = ?")
 	defer stmt.Close()
 
-	err := stmt.QueryRow(raw).Scan(&username, &password, &twofactor)
+	err := stmt.QueryRow(raw).Scan(&username, &password, &tfaProvider, &tfaData)
 	if err != nil {
 		log.Fatalf("Unable to get user with name %s: %s", raw, err)
 	}
 
 	return structs.User {
-		Username: username,
-		Password: password,
-		TwoFactor: twofactor,
+		Username:          username,
+		Password:          password,
+		TwoFactorProvider: tfaProvider,
+		TwoFactorData:     tfaData,
 	}
 }
 
@@ -59,16 +61,18 @@ func GetUsers() map[string]structs.User {
 	for rows.Next() {
 		var username string
 		var password string
-		var twofactor string
+		var tfaProvider string
+		var tfaData string
 
-		if err := rows.Scan(&username, &password, &twofactor); err != nil {
+		if err := rows.Scan(&username, &password, &tfaProvider, &tfaData); err != nil {
 			log.Fatalf("Unable to list user: %s", err)
 		}
 
 		users[username] = structs.User {
-			Username: username,
-			Password: password,
-			TwoFactor: twofactor,
+			Username:          username,
+			Password:          password,
+			TwoFactorProvider: tfaProvider,
+			TwoFactorData:     tfaData,
 		}
 	}
 
@@ -77,7 +81,7 @@ func GetUsers() map[string]structs.User {
 
 // TODO: remove tx param after migration done
 func CreateUser(username string, hash string, tx *sql.Tx) {
-	stmt := prepare("insert into auth values (?, ?, '')")
+	stmt := prepare("insert into auth values (?, ?, '', '')")
 	if tx != nil {
 		stmt = tx.Stmt(stmt)
 	}

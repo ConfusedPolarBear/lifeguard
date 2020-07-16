@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"syscall"
+	"os"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/api"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
@@ -19,9 +20,11 @@ import (
 func main() {
 	resetFlag  := flag.String("r", "", "Username to reset password for")
 	createFlag := flag.String("c", "", "Username to create")
+	tfaFlag := flag.String("t", "", "Username to remove 2FA for")
 	flag.Parse()
 	reset := *resetFlag
 	create := *createFlag
+	tfa := *tfaFlag
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -34,8 +37,14 @@ func main() {
 
 	config.Load()
 
+	// Command line operations should only be available to root
+	prompt := reset != "" || create != ""
+	if (prompt || tfa != "") && os.Geteuid() != 0 {
+		log.Fatalf("CLI is only available to root")
+	}
+
 	hash := ""
-	if reset != "" || create != "" {
+	if prompt {
 		fmt.Print("Enter new password: ")
 
 		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
@@ -55,6 +64,11 @@ func main() {
 	} else if create != "" {
 		config.CreateUser(create, hash, nil)
 		log.Printf("Successfully created account for %s", create)
+		return
+
+	} else if tfa != "" {
+		config.DisableTwoFactor(tfa)
+		log.Printf("Successfully disabled two factor for %s", tfa)
 		return
 	}
 
