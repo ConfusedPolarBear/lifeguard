@@ -7,6 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 	"os"
 	"log"
 
@@ -122,12 +123,12 @@ func migrateConfig(key string, tx *sql.Tx) {
 	stmt.Close()
 }
 
-func GetBool(key string) bool {
-	raw := GetString(key)
+func GetBool(key string, def bool) bool {
+	raw := GetString(key, strconv.FormatBool(def))
 	return raw == "true"
 }
 
-func GetString(key string) string {
+func GetString(key string, def string) string {
 	var value string
 
 	stmt := prepare("select Value from config where Key = ?")
@@ -137,7 +138,8 @@ func GetString(key string) string {
 	err := row.Scan(&value)
 
 	if err != nil {
-		log.Fatalf("Unable to get configuration value with key %s: %s", key, err)
+		Set(key, def)
+		return GetString(key, def)
 	}
 
 	return value
@@ -155,12 +157,8 @@ func Set(key string, value interface{}) {
 	insert := prepare("insert into config values (?, ?)")
 	defer insert.Close()
 
-	_, insErr := stmt.Exec(key, value)
+	ret, insErr := insert.Exec(key, value)
 	if insErr != nil {
-		log.Fatalf("Unable to set value for %s: %s", key, err)
+		log.Fatalf("Unable to set value for %s: error '%s', ret '%s'", key, err, ret)
 	}
 }
-
-
-
-	

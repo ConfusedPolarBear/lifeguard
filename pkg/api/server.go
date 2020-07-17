@@ -13,6 +13,7 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
@@ -34,13 +35,13 @@ type Column struct {
 }
 
 func Setup() {
-	port := config.GetString("bind")
+	port := config.GetString("bind", "")
 	if port == "" {
 		log.Printf("Warning: No option was specified for server bind address, listening on port 5120 (all interfaces)")
 		port = ":5120"
 	}
 
-	key = []byte(config.GetString("keys.session"))
+	key = []byte(config.GetString("keys.session", ""))
 
 	// Validate session options
 	if len(key) != 32 {
@@ -206,9 +207,9 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 
 	props := ""
 	if name == "Datasets" {
-		props = config.GetString("properties.dataset")
+		props = config.GetString("properties.dataset", structs.DefaultProperties["dataset"])
 	} else if name == "Snapshots" {
-		props = config.GetString("properties.snapshot")
+		props = config.GetString("properties.snapshot", structs.DefaultProperties["snapshot"])
 	} else {
 		http.Error(w, "Unknown value for type parameter", http.StatusBadRequest)
 		return

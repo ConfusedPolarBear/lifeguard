@@ -35,12 +35,12 @@ func execInternal(raw []string, stdin []byte) (string, string, error) {
 	var stdout, stderr bytes.Buffer
 
 	if raw[0] != "./browser" {
-		raw = append([]string { config.GetString("timeout.path"), config.GetString("timeout.value") }, raw...)
+		raw = append([]string { config.GetString("timeout.path", "/usr/bin/timeout"), config.GetString("timeout.value", "4") }, raw...)
 	}
 	
 	cmd := exec.Command(raw[0], raw[1:]...)
 
-	if config.GetBool("debug.exec") {
+	if config.GetBool("debug.exec", false) {
 		log.Printf("Executing command: %v", cmd)
 	}
 

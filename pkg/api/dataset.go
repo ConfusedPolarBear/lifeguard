@@ -61,7 +61,7 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 	saved = &structs.Data {
 		Name:       name,
 		Type:       zpool.GetProperties(name, "zfs", "", "type")[0]["type"].Value,
-		Properties: zpool.GetProperties(name, "zfs", "", config.GetString("properties.dataset"))[0],
+		Properties: zpool.GetProperties(name, "zfs", "", config.GetString("properties.dataset", structs.DefaultProperties["dataset"]))[0],
 		Internal:   zpool.GetProperties(name, "zfs", "", "keylocation")[0],
 	}
 
