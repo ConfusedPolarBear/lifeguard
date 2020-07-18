@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"syscall"
 	"time"
@@ -114,14 +115,19 @@ func Setup() {
 func securityHeadersMw(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: eliminate data URLs for images
-		w.Header().Set("Content-Security-Policy", `default-src 'self';
+		// TODO: allow unsafe-eval in dev only. disabling eval breaks vue dev tools in firefox 78.0.1
+		csp := `default-src 'self';
 			base-uri 'none';
 			block-all-mixed-content;
 			form-action 'self';
 			frame-ancestors 'none';
 			img-src 'self' data:;
-			object-src 'none';`)
+			object-src 'none';`
+		
+		// Replace all tabs in the policy with nothing
+		csp = string(regexp.MustCompile("\t+").ReplaceAll([]byte(csp), []byte("")))
 
+		w.Header().Set("Content-Security-Policy", csp)
 		w.Header().Set("Referrer-Policy", "no-referrer")		// never send referrer
 		w.Header().Set("X-Frame-Options", "deny")				// forbid framing
 		w.Header().Set("X-Content-Type-Options", "nosniff")		// forbid content type sniffing
