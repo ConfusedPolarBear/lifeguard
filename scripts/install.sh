@@ -23,7 +23,7 @@ fi
 
 # =========== sudo policy ===========
 log "Installing new sudo policy as 99-lifeguard"
-cp assets/99-lifeguard /etc/sudoers.d/
+sed "s/%LG_USER%/$user/" assets/99-lifeguard > /etc/sudoers.d/99-lifeguard
 
 # =========== zpool permissions ===========
 log "Allowing user $user to perform the following actions on pool $pool:"

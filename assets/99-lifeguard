@@ -3,5 +3,4 @@
 
 # User Host = (Runas) Command1, Command2
 
-# Allow
-ALL ALL=(root) NOPASSWD: /sbin/zpool scrub *, /sbin/zfs mount *, /sbin/zfs unmount *
+%LG_USER% ALL=(root) NOPASSWD: /sbin/zpool scrub *, /sbin/zfs mount *, /sbin/zfs unmount *
