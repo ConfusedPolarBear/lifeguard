@@ -18,10 +18,12 @@ import (
 )
 
 func main() {
+	devFlag    := flag.Bool("d", false, "Enable debug mode")
 	resetFlag  := flag.String("r", "", "Username to reset password for")
 	createFlag := flag.String("c", "", "Username to create")
-	tfaFlag := flag.String("t", "", "Username to remove 2FA for")
+	tfaFlag    := flag.String("t", "", "Username to remove 2FA for")
 	flag.Parse()
+	config.DevMode = *devFlag
 	reset := *resetFlag
 	create := *createFlag
 	tfa := *tfaFlag
@@ -34,6 +36,9 @@ func main() {
 	log.Printf("Git commit: %s%s", config.Commit, config.Modified)
 	log.Printf("Build time: %s", config.BuildTime)
 	log.Printf("Go version: %s", config.GoVersion)
+	if config.DevMode {
+		log.Printf("Warning: Debug mode has been enabled. Some security features will be disabled.")
+	}
 
 	config.Load()
 

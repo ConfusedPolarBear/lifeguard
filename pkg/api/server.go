@@ -114,7 +114,6 @@ func Setup() {
 func securityHeadersMw(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: eliminate data URLs for images
-		// TODO: allow unsafe-eval in dev only. disabling eval breaks vue dev tools in firefox 78.0.1
 		csp := `default-src 'self';
 			base-uri 'none';
 			block-all-mixed-content;
@@ -122,6 +121,11 @@ func securityHeadersMw(next http.Handler) http.Handler {
 			frame-ancestors 'none';
 			img-src 'self' data:;
 			object-src 'none';`
+
+		// Needed to allow Vue devtools to work
+		if config.DevMode {
+			csp += "script-src 'self' 'unsafe-eval';"
+		}
 		
 		// Replace all tabs in the policy with nothing
 		csp = string(regexp.MustCompile("\t+").ReplaceAll([]byte(csp), []byte("")))

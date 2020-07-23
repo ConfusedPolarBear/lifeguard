@@ -12,6 +12,7 @@ var Commit    string
 var Modified  string
 var BuildTime string
 var GoVersion string
+var DevMode   bool
 
 func Normalize() {
 	GoVersion = strings.ReplaceAll(GoVersion, "go version ", "")

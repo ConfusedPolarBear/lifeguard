@@ -11,6 +11,10 @@
 
 	<div v-if="!auth">
 		<b-form class="loginForm" @submit="login">
+			<b-alert variant="warning" :show="debug">
+				<strong>Warning:</strong> Lifeguard is currently running in debug mode, which disables some web interface security features.
+			</b-alert>
+
 			<b-alert variant="danger" :show="invalid">
 				Invalid credentials
 			</b-alert>
@@ -33,6 +37,7 @@ export default {
 		return {
 			auth:     false,
 			invalid:  false,
+			debug:    false,
 			password: '',
 			username: '',
 			tfa: {
@@ -79,6 +84,7 @@ export default {
 		update: async function() {
 			let info = await ApiClient.GetInfo();
 			this.auth = info.Authenticated;
+			this.debug = info.Debug;
 
 			if (this.auth) {
 				this.$router.push('/pools');
