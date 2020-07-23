@@ -16,6 +16,7 @@ import (
 	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 )
 
+var IsTest = false
 var poolHistory = make(map[string]*structs.Pool)
 
 func ParseZpoolStatus(raw string) *structs.Pool {
@@ -95,7 +96,7 @@ func ParseZpoolStatus(raw string) *structs.Pool {
 		}
 	}
 
-	if config.GetBool("debug.parse") {
+	if IsTest || config.GetBool("debug.parse", false) {
 		log.Printf("==================== Processed zpool output =======================\n")
 		for key, value := range poolMap {
 			log.Printf("'%s' => '%s'\n", key, value)
@@ -160,7 +161,7 @@ func GetProperties(name string, which string, filter string, props string) []map
 	// The order is determined by the properties passed to the -o flag.
 	output := MustExec(cmd)
 
-	if config.GetBool("debug.parse") {
+	if IsTest || config.GetBool("debug.parse", false) {
 		log.Printf("Raw output of %v: '%s'", cmd, output)
 	}
 
@@ -228,7 +229,7 @@ func ParsePool(name string, includeChildren bool) *structs.Pool {
 	out := MustExec(cmd)
 
 	pool := ParseZpoolStatus(out)
-	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool"))[0]
+	pool.Properties = GetProperties(name, "zpool", "", config.GetString("properties.pool", structs.DefaultProperties["pool"]))[0]
 
 	/*
 	 * This is optional since parsing all snapshots is expensive if many are present.
@@ -236,8 +237,8 @@ func ParsePool(name string, includeChildren bool) *structs.Pool {
 	 * from less than 50 ms on average to 260 ms.
 	 */
 	if includeChildren {
-		pool.Datasets   = GetProperties(name, "zfs", "filesystem", config.GetString("properties.dataset"))
-		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", config.GetString("properties.snapshot"))
+		pool.Datasets   = GetProperties(name, "zfs", "filesystem", config.GetString("properties.dataset", structs.DefaultProperties["dataset"]))
+		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", config.GetString("properties.snapshot", structs.DefaultProperties["snapshot"]))
 	}
 
 	return pool

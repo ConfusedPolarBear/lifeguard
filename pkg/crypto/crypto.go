@@ -20,8 +20,12 @@ var known sync.Map
 
 func GenerateHMAC(plaintext string) string {
 	data := []byte(plaintext)
-	secret := config.GetString("security.session_key")
+	secret := config.GetString("keys.hmac", GetRandom(16))
 	h := hmac.New(sha256.New, []byte(secret))
+
+	if len(secret) != 32 {
+		log.Fatalf("HMAC secret is blank")
+	}
 
 	h.Write(data)
 

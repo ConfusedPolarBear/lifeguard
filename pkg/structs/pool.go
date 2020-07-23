@@ -34,3 +34,9 @@ type Container struct {
 	Status string
 	Level  int
 }
+
+var DefaultProperties = map[string]string {
+	"pool":     "name,health,capacity,free,size,fragmentation,ashift",
+	"dataset":  "name,used,avail,encryption,keystatus,mounted,usedsnap,usedds",
+	"snapshot": "name,used,avail,refer",
+}

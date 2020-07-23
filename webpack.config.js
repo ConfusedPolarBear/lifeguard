@@ -6,30 +6,30 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
 	entry: { index: path.resolve(__dirname, "web", "src", "app.js") },
 	output: { path: path.resolve(__dirname, "web", "dist") },
-	devtool: 'source-map',	// TODO: investigate alternatives - this slows down building but avoids eval() [evil() ?]
+	devtool: 'none',	// TODO: investigate alternatives - this slows down building but avoids eval() [evil() ?]
 	module: {
 		rules: [
-		{
-			test: /\.vue$/,
-			loader: 'vue-loader'
-		},
-		{
-			test: /\.js$/,
-			loader: 'babel-loader'
-		},
-		{
-			test: /\.css$/,
-			use: [
-				{ loader: 'style-loader', options: { injectType: 'linkTag' } },
-				{ loader: 'file-loader' },
-			],
-		},
-		{
-			test: /\.(woff|woff2|ttf)$/i,
-			use: [
-				{ loader: 'file-loader', options: { name: '[name].[ext]'} }
-			]
-		}
+			{
+				test: /\.vue$/,
+				loader: 'vue-loader'
+			},
+			{
+				test: /\.js$/,
+				loader: 'babel-loader'
+			},
+			{
+				test: /\.css$/,
+				use: [
+					{ loader: 'style-loader', options: { injectType: 'linkTag' } },
+					{ loader: 'file-loader' },
+				],
+			},
+			{
+				test: /\.(woff|woff2|ttf)$/i,
+				use: [
+					{ loader: 'file-loader', options: { name: '[name].[ext]'} }
+				]
+			}
 		],
 	},
 	plugins: [

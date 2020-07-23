@@ -28,12 +28,27 @@ export async function Login(username, password) {
 		Password: password
 	});
 
-	if (res.ok) {
+	if (!res.ok) {
+		return Promise.reject('Bad username/password');
+	}
+
+	let authType = await res.text();
+	authType = authType.replaceAll('\n', '');
+
+	if (authType === 'full') {
 		cachedInfo = {};
 		cachedProperties = {};
+		console.log('login successful');
+
+	} else if (authType === 'partial') {
+		console.log('partially logged in, waiting for response to 2FA challenge');
+
+	} else {
+		console.log('unknown auth result "' + authType + '"');
+		Promise.reject('Unknown response ' + authType);
 	}
 	
-	return Promise.resolve(res.ok);
+	return Promise.resolve(authType);
 }
 
 export function Logout() {
@@ -47,8 +62,17 @@ export async function GetInfo() {
 	if (cachedInfo.Authenticated !== undefined) {
 		return cachedInfo;
 	} else {
-		cachedInfo = await fetch('/api/v0/info').then(res => res.json());
-		return cachedInfo;
+		let info = await fetch('/api/v0/info').then(res => res.json());
+		
+		// Never cache info from before we are authenticated
+		if (info.Authenticated) {
+			console.log('caching info');
+			cachedInfo = info;
+		} else {
+			console.log('not caching info');
+		}
+
+		return info;
 	}
 }
 
@@ -133,4 +157,9 @@ export async function GetNotifications() {
 	
 	let list = await res.json();
 	return list.reverse();
+}
+
+export async function GetTwoFactorChallenge() {
+	const res = await fetch('/api/v0/tfa/challenge');
+	return await res.json();
 }

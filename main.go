@@ -4,13 +4,28 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"syscall"
+	"os"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/api"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func main() {
+	resetFlag  := flag.String("r", "", "Username to reset password for")
+	createFlag := flag.String("c", "", "Username to create")
+	tfaFlag := flag.String("t", "", "Username to remove 2FA for")
+	flag.Parse()
+	reset := *resetFlag
+	create := *createFlag
+	tfa := *tfaFlag
+
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	config.Normalize();
@@ -21,6 +36,41 @@ func main() {
 	log.Printf("Go version: %s", config.GoVersion)
 
 	config.Load()
+
+	// Command line operations should only be available to root
+	prompt := reset != "" || create != ""
+	if (prompt || tfa != "") && os.Geteuid() != 0 {
+		log.Fatalf("CLI is only available to root")
+	}
+
+	hash := ""
+	if prompt {
+		fmt.Print("Enter new password: ")
+
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Fatalf("Unable to get password: %s", err)
+		}
+		fmt.Println()
+
+		hash = crypto.HashPassword(string(bytePassword))
+	}
+
+	if reset != "" {
+		config.SetPassword(reset, hash)
+		log.Printf("Successfully reset password for %s", reset)
+		return
+
+	} else if create != "" {
+		config.CreateUser(create, hash, nil)
+		log.Printf("Successfully created account for %s", create)
+		return
+
+	} else if tfa != "" {
+		config.DisableTwoFactor(tfa)
+		log.Printf("Successfully disabled two factor for %s", tfa)
+		return
+	}
 
 	api.Setup()
 }

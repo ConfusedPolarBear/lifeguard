@@ -14,6 +14,7 @@ import (
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/crypto"
+	"github.com/ConfusedPolarBear/lifeguard/pkg/structs"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/sessions"
@@ -25,7 +26,6 @@ import (
 var (
 	key = []byte("")			// use a temporary key so key and store are accessible throughout the api package
 	store = sessions.NewCookieStore(key)
-	credentials = make(map[string]string)
 )
 
 // This is used by getPropertiesHandler to construct the fields object. The custom JSON fields are needed because go won't export struct members with a lowercase name.
@@ -36,13 +36,13 @@ type Column struct {
 }
 
 func Setup() {
-	port := config.GetString("server.bind")
+	port := config.GetString("bind", "")
 	if port == "" {
-		log.Printf("Warning: No option was specified for server.bind, listening on port 5120 (all interfaces)")
+		log.Printf("Warning: No option was specified for server bind address, listening on port 5120 (all interfaces)")
 		port = ":5120"
 	}
 
-	key = []byte(config.GetString("security.session_key"))
+	key = []byte(config.GetString("keys.session", ""))
 
 	// Validate session options
 	if len(key) != 32 {
@@ -50,13 +50,12 @@ func Setup() {
 
 		temp := strings.ToUpper(crypto.GetRandom(16))
 		key = []byte(temp)
-		config.Set("security.session_key", temp)
+		config.Set("keys.session", temp)
 	}
 
 	store = sessions.NewCookieStore(key)
 
-	adminHash := config.GetString("security.admin")
-	if adminHash == "" {
+	if !config.IsUser("admin") {
 		fmt.Print("Enter new password for user admin: ")
 
 		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
@@ -64,14 +63,11 @@ func Setup() {
 			log.Fatalf("Unable to get password: %s", err)
 		}
 
-		adminHash = crypto.HashPassword(string(bytePassword))
-		config.Set("security.admin", adminHash)
+		config.CreateUser("admin", crypto.HashPassword(string(bytePassword)), nil)
 
 		fmt.Println()
 		log.Printf("Password successfully hashed and saved")
 	}
-
-	credentials["admin"] = adminHash
 
 	store.Options = &sessions.Options{
 		Path:     "/",
@@ -85,6 +81,8 @@ func Setup() {
 	// Security
 	r.HandleFunc("/api/v0/authenticate", loginHandler).Methods("POST")
 	r.HandleFunc("/api/v0/logout", logoutHandler).Methods("POST")
+	r.HandleFunc("/api/v0/tfa/enabled", checkTFAEnabledHandler).Methods("GET")
+	r.HandleFunc("/api/v0/tfa/challenge", tfaChallengeHandler).Methods("GET")
 
 	// Pool
 	r.HandleFunc("/api/v0/pool/{pool}", getPoolHandler).Methods("GET")
@@ -94,6 +92,7 @@ func Setup() {
 	SetupInfo(r)
 	SetupDataset(r)
 	SetupNotifications(r)
+	SetupTOTP(r)
 
 	// Static web UI
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./web/dist"))).Methods("GET")
@@ -213,9 +212,9 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 
 	props := ""
 	if name == "Datasets" {
-		props = config.GetString("properties.dataset")
+		props = config.GetString("properties.dataset", structs.DefaultProperties["dataset"])
 	} else if name == "Snapshots" {
-		props = config.GetString("properties.snapshot")
+		props = config.GetString("properties.snapshot", structs.DefaultProperties["snapshot"])
 	} else {
 		http.Error(w, "Unknown value for type parameter", http.StatusBadRequest)
 		return
@@ -239,9 +238,16 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	sentUsername, password := getAuth(r)
 	auth, username := checkAuth(sentUsername, password)
+	partialAuth := "full"
 	
 	session.Values["authenticated"] = auth
 	session.Values["username"] = username
+
+	if auth && config.IsTwoFactorEnabled(username) {
+		partialAuth = "partial"
+		session.Values["partialAuth"] = username	
+		session.Values["authenticated"] = false
+	}
 
 	err := session.Save(r, w)
 	if err != nil {
@@ -251,8 +257,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if auth {
-		log.Printf("%s authenticated from %s", username, r.RemoteAddr)
-		http.Error(w, "OK", http.StatusOK)
+		log.Printf("%s authenticated (%s) from %s", username, partialAuth, r.RemoteAddr)
+		http.Error(w, partialAuth, http.StatusOK)
 
 	} else {
 		log.Printf("WARNING %s failed to authenticate as %s", r.RemoteAddr, sentUsername)
@@ -274,6 +280,32 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "", http.StatusOK)
 }
 
+func tfaChallengeHandler(w http.ResponseWriter, r *http.Request) {
+	username := getPartialAuth(r)
+	if username == "" {
+		http.Error(w, "Invalid state", http.StatusForbidden)
+		return
+	}
+
+	provider := config.GetTwoFactorProvider(username)
+	challenge := ""
+
+	// challenge will be needed for fido2
+	if provider == "totp" {
+		challenge = ""
+	}
+
+	ret := struct {
+		Provider string
+		Challenge string
+	} {
+		provider,
+		challenge,
+	}
+
+	w.Write(zpool.Encode(ret))
+}
+
 func getAuth(r *http.Request) (string, string) {
 	username, _ := GetParameter(r, "Username")
 	password, _ := GetParameter(r, "Password")
@@ -283,17 +315,17 @@ func getAuth(r *http.Request) (string, string) {
 
 func checkAuth(username string, password string) (bool, string) {
 	goodUsername := true
-	loadedHash, ok := credentials[username]
+	user, ok := config.GetUsers()[username]
 
 	if !ok {
 		log.Printf("Unknown username %s", username)
 
 		// Prevent user enumeration attacks
-		loadedHash = "$2a$12$000000000000.0000000000000000000000000000000000000000"
+		user.Password = "$2a$12$000000000000.0000000000000000000000000000000000000000"
 		goodUsername = false
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(loadedHash), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
 		if goodUsername {
@@ -358,4 +390,32 @@ func getUsername(r *http.Request, w http.ResponseWriter) string {
 	}
 
 	return username
+}
+
+func getPartialAuth(r *http.Request) string {
+	session := getSession(r)
+	partial, ok := "", false
+
+	if partial, ok = session.Values["partialAuth"].(string); !ok {
+		return ""
+	}
+
+	return partial
+}
+
+func checkTFAEnabledHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsernameQuiet(r)
+	if username == "" {
+		return
+	}
+
+	enabled := config.IsTwoFactorEnabled(username)
+
+	ret := struct {
+		Enabled bool
+	} {
+		enabled,
+	}
+
+	w.Write(zpool.Encode(ret))
 }
