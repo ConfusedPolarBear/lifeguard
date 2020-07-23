@@ -33,7 +33,7 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 		info["GoVersion"] = config.GoVersion
 	}
 
-	w.Write(zpool.Encode(info))
+	EncodeAndSend(w, info)
 }
 
 func supportHandler(w http.ResponseWriter, r *http.Request) {

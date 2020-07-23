@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/notifications"
-	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 
 	"github.com/gorilla/mux"
 )
@@ -24,5 +23,5 @@ func getNotifications(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write(zpool.Encode(notifications.Notifications))
+	EncodeAndSend(w, notifications.Notifications)
 }

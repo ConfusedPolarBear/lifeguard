@@ -174,13 +174,17 @@ func GetHMAC(r *http.Request) (string, bool) {
 	return data, true
 }
 
+func EncodeAndSend(w http.ResponseWriter, raw interface{}) {
+	w.Write(zpool.Encode(raw))
+}
+
 func getAllPoolsHandler(w http.ResponseWriter, r *http.Request) {
 	if !checkSessionAuth(r, w) {
 		return
 	}
 
 	pools := zpool.ParseAllPools()
-	w.Write(zpool.Encode(pools))
+	EncodeAndSend(w, pools)
 }
 
 func getPoolHandler(w http.ResponseWriter, r *http.Request) {
@@ -195,7 +199,7 @@ func getPoolHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parsed := zpool.ParsePool(pool, true)
-	w.Write(zpool.Encode(parsed))
+	EncodeAndSend(w, parsed)
 }
 
 // This handler returns the properties the user has specified in the config.ini file to sort the displayed columns correctly
@@ -230,7 +234,7 @@ func getPropertyListHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Write(zpool.Encode(columns))
+	EncodeAndSend(w, columns)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -303,7 +307,7 @@ func tfaChallengeHandler(w http.ResponseWriter, r *http.Request) {
 		challenge,
 	}
 
-	w.Write(zpool.Encode(ret))
+	EncodeAndSend(w, ret)
 }
 
 func getAuth(r *http.Request) (string, string) {
@@ -417,5 +421,5 @@ func checkTFAEnabledHandler(w http.ResponseWriter, r *http.Request) {
 		enabled,
 	}
 
-	w.Write(zpool.Encode(ret))
+	EncodeAndSend(w, ret)
 }

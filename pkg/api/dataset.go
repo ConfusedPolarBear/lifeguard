@@ -65,7 +65,7 @@ func getDataInfoHandler(w http.ResponseWriter, r *http.Request) {
 		Internal:   zpool.GetProperties(name, "zfs", "", "keylocation")[0],
 	}
 
-	w.Write(zpool.Encode(saved))
+	EncodeAndSend(w, saved)
 }
 
 func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
@@ -300,7 +300,7 @@ func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Write(zpool.Encode(files))
+	EncodeAndSend(w, files)
 
 	} else if contents[:4] == "file" {
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filepath.Base(path)))

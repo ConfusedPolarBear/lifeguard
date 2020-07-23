@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
-	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 	
 	"github.com/gorilla/mux"
 )
@@ -36,7 +35,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 		image,
 	}
 
-	w.Write(zpool.Encode(ret))
+	EncodeAndSend(w, ret)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
