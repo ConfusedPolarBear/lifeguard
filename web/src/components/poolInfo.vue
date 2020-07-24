@@ -44,10 +44,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			<br>
 			<b-button-toolbar>
-				<b-button-group>
-					<b-button @click="scrub" :data-name="poolName">{{ poolState.scrub }}</b-button>
-					<b-button disabled>Trim</b-button>
-					<b-button disabled>iostat</b-button>
+				<b-button-group :data-name="poolName">
+					<b-button @click="scrub">{{ poolState.scrub }}</b-button>
+					<b-button @click="trim">Trim</b-button>
+					<b-button @click="iostat">iostat</b-button>
 				</b-button-group>
 			</b-button-toolbar>
 
@@ -70,6 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 import * as ApiClient from '../apiClient.js';
+import * as PoolApi from '../api/pool.js';
 
 export default {
 	name: 'poolInfo',
@@ -152,9 +153,11 @@ export default {
 		},
 		dataClick: async function(event, name) {
 			let hmac = this.nameToHMAC(name);
+			console.debug('event ' + event + ' on ' + name + ' with id ' + hmac);
 
 			try {
 				let res = '';
+				let error = true;
 
 				switch (event) {
 				case 'browse':
@@ -197,6 +200,15 @@ export default {
 				case 'pause-scrub':
 					res = await ApiClient.PauseScrub(hmac);
 					break;
+
+				case 'trim':
+					res = await PoolApi.Trim(hmac);
+					break;
+
+				case 'iostat':
+					res = await PoolApi.Iostat(hmac);
+					error = false;
+					break;
 				}
 
 				this.update();
@@ -205,7 +217,8 @@ export default {
 					return;
 				}
 
-				this.popup('Error', res);
+				let title = error ? 'Error' : 'Information';
+				this.popup(title, res);
 			} catch (e) {
 				console.error(e);
 			}
@@ -234,18 +247,29 @@ export default {
 			});
 		},
 		scrub: function(e) {
-			let name = e.target.dataset.name;
+			let name = e.target.parentElement.dataset.name;
 			if (this.pool.Scanned === 0 || this.pool.ScanPaused) {
 				this.dataClick('scrub', name);
 			} else {
 				this.dataClick('pause-scrub', name);
 			}
 		},
+		trim: function(e) {
+			let name = e.target.parentElement.dataset.name;
+			this.dataClick('trim', name);
+		},
+		iostat: function(e) {
+			let name = e.target.parentElement.dataset.name;
+			this.dataClick('iostat', name);
+		},
 		popup: function(title, msg) {
-			this.$bvModal.msgBoxOk(msg, {
+			let html = (title === 'Information');
+			let content = html ? this.$createElement('pre', {}, [ msg ]) : msg;
+
+			this.$bvModal.msgBoxOk(content, {
 				title: title,
-				size: 'sm',
-				centered: true
+				size: html ? 'lg' : 'sm',
+				centered: true,
 			});
 		}
 	},

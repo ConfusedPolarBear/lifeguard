@@ -295,6 +295,20 @@ func Unmount(dataset string) (string, error) {
 	return stderr, err
 }
 
+func Trim(pool string) (string, error) {
+	cmd := append(cmdTrim, pool)
+	_, stderr, err := Exec(cmd)
+
+	return stderr, err
+}
+
+func Iostat(pool string) (string, error) {
+	cmd := append(cmdIostat, pool)
+	stdout, _, err := Exec(cmd)
+
+	return stdout, err
+}
+
 func Encode(raw interface{}) []byte {
 	encoded, err := json.Marshal(raw)
 

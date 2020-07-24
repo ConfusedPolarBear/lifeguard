@@ -40,6 +40,10 @@ func SetupDataset(r *mux.Router) {
 	r.HandleFunc("/api/v0/pool/{id}/scrub/start", scrubHandler).Methods("POST")
 	r.HandleFunc("/api/v0/pool/{id}/scrub/pause", scrubPauseHandler).Methods("POST")
 
+	// Trim and iostat
+	r.HandleFunc("/api/v0/pool/{id}/trim", trimHandler).Methods("POST")
+	r.HandleFunc("/api/v0/pool/{id}/iostat", iostatHandler).Methods("GET")
+
 	// File browsing
 	r.HandleFunc("/api/v0/files/browse/{id}", browseFilesHandler).Methods("GET")		// list directory
 }
@@ -235,6 +239,52 @@ func unmountHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(fmt.Sprintf("%s unmounted dataset %s", username, name))
 	http.Error(w, "", http.StatusOK)
+}
+
+func trimHandler(w http.ResponseWriter, r *http.Request) {
+	username := getUsername(r, w)
+	if username == "" {
+		return
+	}
+	
+	name, ok := GetHMAC(r)
+	if !ok {
+		ReportInvalid(w)
+		return
+	}
+
+	stderr, err := zpool.Trim(name)
+
+	if err != nil {
+		log.Printf("Unable to trim pool %s: %s. %s", name, err, stderr)
+		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
+		return
+	}
+
+	log.Println(fmt.Sprintf("%s trimmed pool %s", username, name))
+	http.Error(w, "", http.StatusOK)
+}
+
+func iostatHandler(w http.ResponseWriter, r *http.Request) {
+	if !checkSessionAuth(r, w) {
+		return
+	}
+	
+	name, ok := GetHMAC(r)
+	if !ok {
+		ReportInvalid(w)
+		return
+	}
+
+	stdout, err := zpool.Iostat(name)
+
+	if err != nil {
+		log.Printf("Unable to get stats for pool %s: %s", name, err)
+		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
+		return
+	}
+
+	w.Write([]byte(stdout))
 }
 
 func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
