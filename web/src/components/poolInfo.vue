@@ -144,9 +144,15 @@ export default {
 			let dataset = this.pool.Datasets.find((x) => {
 				return x.name.Value === name;
 			});
+
+			if (dataset === undefined) {
+				dataset = this.pool.Snapshots.find((x) => {
+					return x.name.Value === name;
+				});
+			}
 			
 			if (dataset === undefined) {
-				throw Error('Could not find dataset with name ' + name);
+				throw Error('Could not find dataset or snapshot with name ' + name);
 			} else {
 				return dataset.name.HMAC;
 			}

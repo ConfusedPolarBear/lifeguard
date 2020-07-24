@@ -269,7 +269,7 @@ func iostatHandler(w http.ResponseWriter, r *http.Request) {
 	if !checkSessionAuth(r, w) {
 		return
 	}
-	
+
 	name, ok := GetHMAC(r)
 	if !ok {
 		ReportInvalid(w)
@@ -307,6 +307,14 @@ func browseFilesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("%s browsed to %s", username, path)
+
+	// Check if this is a snapshot
+	if strings.Contains(path, "@") {
+		// given "test/test@SNAP", we need to browse to "/test/test/.zfs/snapshot/SNAP"
+		parts := strings.Split(path, "@")
+		path = fmt.Sprintf("%s/.zfs/snapshot/%s", parts[0], parts[1])
+		log.Printf("Browsed to snapshot '%s' at path '%s'", parts[0], path)
+	}
 
 	// TODO: Lifeguard could verify that the browser binary has a signature on it
 	// The signature can be from any key but the public key must be printed at startup

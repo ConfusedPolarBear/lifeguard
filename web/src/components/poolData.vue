@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             <b-button :disabled="disableToolbar" @click="browse">Browse</b-button>
             <b-button :disabled="disableToolbar" @click="mount">{{ propertyEqual('mounted', 'no') ? 'Mount': 'Unmount' }}</b-button>
             <b-button :disabled="disableToolbar" @click="loadKey">{{ propertyEqual('keystatus', 'unavailable') ? 'Load key' : 'Unload key' }}</b-button>
-            <b-dropdown split text="Snapshot"  :disabled="disableToolbar">
+			<b-dropdown split text="Snapshot" :disabled="disableToolbar">
                 <b-dropdown-item>Diff</b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
                 <b-dropdown-item variant="danger">Rollback</b-dropdown-item>
@@ -57,7 +57,12 @@ export default {
 				return true;
 			}
 
-			return this.selected[0][prop].Value === state;
+			let val = this.selected[0][prop];
+			if (val === undefined) {
+				return false;
+			} else {
+				return val.Value === state;
+			}
 		},
 		mount: function() {
 			let event = this.propertyEqual('mounted', 'no') ? 'mount' : 'unmount';
