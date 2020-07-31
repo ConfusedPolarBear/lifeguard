@@ -23,7 +23,6 @@ func Exec(raw []string) (string, string, error) {
 
 func MustExec(raw []string) string {
 	stdout, _, err := Exec(raw)
-
 	if err != nil {
 		log.Fatalf("Unable to exec %s: %s", raw, err)
 	}
@@ -48,8 +47,7 @@ func execInternal(raw []string, stdin []byte) (string, string, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	err := cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return "", string(stderr.Bytes()), err
 	}
 

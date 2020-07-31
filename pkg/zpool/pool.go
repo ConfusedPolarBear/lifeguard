@@ -307,7 +307,6 @@ func Iostat(pool string) (string, error) {
 
 func Encode(raw interface{}) []byte {
 	encoded, err := json.Marshal(raw)
-
 	if err != nil {
 		log.Fatalf("Unable to marshal %#v to JSON: %s", raw, err)
 	}

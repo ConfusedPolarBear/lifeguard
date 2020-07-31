@@ -66,8 +66,7 @@ func main() {
 	viper.SetConfigName("browser")
 	viper.AddConfigPath("./config/")
 
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Unable to load config: %s", err)
 	}
 
@@ -95,9 +94,10 @@ func main() {
 	if openErr != nil {
 		log.Fatalf("Error: unable to open %s: %s", path, openErr)
 	}
+	
 	info, statErr := file.Stat()
 	if statErr != nil {
-		log.Fatalf("Error: unable to stat %s: %s", path, err)
+		log.Fatalf("Error: unable to stat %s: %s", path, statErr)
 	}
 
 	// List the contents of the directory or read the file
@@ -121,8 +121,7 @@ func main() {
 		}
 	} else {
 		fmt.Printf("file")
-		_, err := io.Copy(os.Stdout, file)
-		if err != nil {
+		if _, err := io.Copy(os.Stdout, file); err != nil {
 			log.Fatalf("Error: Unable to copy %s: %s", path, err)
 		}
 	}

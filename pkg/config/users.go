@@ -33,8 +33,7 @@ func GetUser(raw string) structs.User {
 	stmt := prepare("select * from auth where Username = ?")
 	defer stmt.Close()
 
-	err := stmt.QueryRow(raw).Scan(&username, &password, &tfaProvider, &tfaData)
-	if err != nil {
+	if err := stmt.QueryRow(raw).Scan(&username, &password, &tfaProvider, &tfaData); err != nil {
 		log.Fatalf("Unable to get user with name %s: %s", raw, err)
 	}
 
@@ -86,7 +85,7 @@ func CreateUser(username string, hash string, tx *sql.Tx) {
 		stmt = tx.Stmt(stmt)
 	}
 	defer stmt.Close()
-	
+
 	stmt.Exec(username, hash)
 }
 

@@ -86,8 +86,7 @@ func loadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stderr, err := zpool.LoadKey(name, passphrase)
-	if err != nil {
+	if stderr, err := zpool.LoadKey(name, passphrase); err != nil {
 		// TODO: unit test the first two conditions
 		if strings.Index(stderr, "Incorrect key provided") != -1 {
 			http.Error(w, "Incorrect passphrase", http.StatusUnauthorized)
@@ -119,8 +118,7 @@ func unloadKeyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stderr, err := zpool.UnloadKey(name)
-	if err != nil {
+	if stderr, err := zpool.UnloadKey(name); err != nil {
 		if strings.Index(stderr, "is busy") != -1 {
 			http.Error(w, "Dataset is mounted", http.StatusBadRequest)
 
@@ -141,16 +139,14 @@ func scrubHandler(w http.ResponseWriter, r *http.Request) {
 	if username == "" {
 		return
 	}
-	
+
 	name, ok := GetHMAC(r)
 	if !ok {
 		ReportInvalid(w)
 		return
 	}
 
-	stderr, err := zpool.Scrub(name)
-
-	if err != nil {
+	if stderr, err := zpool.Scrub(name); err != nil {
 		log.Printf("Unable to scrub pool %s: %s. %s", name, err, stderr)
 		http.Error(w, stderr, http.StatusBadRequest)
 
@@ -167,16 +163,14 @@ func scrubPauseHandler(w http.ResponseWriter, r *http.Request) {
 	if username == "" {
 		return
 	}
-	
+
 	name, ok := GetHMAC(r)
 	if !ok {
 		ReportInvalid(w)
 		return
 	}
 
-	stderr, err := zpool.PauseScrub(name)
-
-	if err != nil {
+	if stderr, err := zpool.PauseScrub(name); err != nil {
 		log.Printf("Unable to pause scrubbing pool %s: %s. %s", name, err, stderr)
 		http.Error(w, stderr, http.StatusBadRequest)
 
@@ -192,16 +186,14 @@ func mountHandler(w http.ResponseWriter, r *http.Request) {
 	if username == "" {
 		return
 	}
-	
+
 	name, ok := GetHMAC(r)
 	if !ok {
 		ReportInvalid(w)
 		return
 	}
 
-	stderr, err := zpool.Mount(name)
-
-	if err != nil {
+	if stderr, err := zpool.Mount(name); err != nil {
 		if strings.Index(stderr, "encryption key not loaded") != -1 {
 			http.Error(w, "Encryption key is not loaded", http.StatusBadRequest)
 		} else {
@@ -228,9 +220,7 @@ func unmountHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stderr, err := zpool.Unmount(name)
-
-	if err != nil {
+	if stderr, err := zpool.Unmount(name); err != nil {
 		log.Printf("Unable to unmount dataset %s: %s. %s", name, err, stderr)
 		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
 
@@ -253,9 +243,7 @@ func trimHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stderr, err := zpool.Trim(name)
-
-	if err != nil {
+	if stderr, err := zpool.Trim(name); err != nil {
 		log.Printf("Unable to trim pool %s: %s. %s", name, err, stderr)
 		http.Error(w, msgErrorOccurred, http.StatusBadRequest)
 		return
@@ -277,7 +265,6 @@ func iostatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stdout, err := zpool.Iostat(name)
-
 	if err != nil {
 		log.Printf("Unable to get stats for pool %s: %s", name, err)
 		http.Error(w, msgErrorOccurred, http.StatusBadRequest)

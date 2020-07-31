@@ -86,8 +86,7 @@ func challengeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session.Values["authenticated"] = true
-	err := session.Save(r, w)
-	if err != nil {
+	if err := session.Save(r, w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Printf("Unable to save session: %s", err)
 		return

@@ -247,18 +247,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	sentUsername, password := getAuth(r)
 	auth, username := checkAuth(sentUsername, password)
 	partialAuth := "full"
-	
+
 	session.Values["authenticated"] = auth
 	session.Values["username"] = username
 
 	if auth && config.IsTwoFactorEnabled(username) {
 		partialAuth = "partial"
-		session.Values["partialAuth"] = username	
+		session.Values["partialAuth"] = username
 		session.Values["authenticated"] = false
 	}
 
-	err := session.Save(r, w)
-	if err != nil {
+	if err := session.Save(r, w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Printf("Unable to save session: %s", err)
 		return
@@ -278,8 +277,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session := getSession(r)
 	session.Values = nil
 
-	err := session.Save(r, w)
-	if err != nil {
+	if err := session.Save(r, w); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Printf("Unable to save session: %s", err)
 		return
@@ -333,9 +331,7 @@ func checkAuth(username string, password string) (bool, string) {
 		goodUsername = false
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-
-	if err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		if goodUsername {
 			log.Printf("Incorect password provided for %s", username)
 		}

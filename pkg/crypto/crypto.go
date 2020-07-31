@@ -61,8 +61,7 @@ func GetRandom(n int) string {
 
 func generateRandomBytes(n int) []byte {
 	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
+	if _, err := rand.Read(b); err != nil {
 		log.Fatalf("Unable to generate random bytes: %s", err)
 	}
 

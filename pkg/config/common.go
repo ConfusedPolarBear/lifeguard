@@ -25,8 +25,7 @@ func GetTwoFactorProvider(username string) string {
 	stmt := prepare("select TwoFactorProvider from auth where Username = ?")
 	defer stmt.Close()
 
-	err := stmt.QueryRow(username).Scan(&provider)
-	if err != nil {
+	if err := stmt.QueryRow(username).Scan(&provider); err != nil {
 		log.Fatalf("Unable to get TOTP provider for user %s: %s", username, err)
 	}
 

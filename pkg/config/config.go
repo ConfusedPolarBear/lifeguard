@@ -50,8 +50,7 @@ func loadLegacy() bool {
 	viper.AddConfigPath("./config/")
 	viper.AddConfigPath(".")
 
-	err := viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		return false
 	}
 
@@ -69,7 +68,7 @@ func migrateFromLegacy() {
 	if count != 0 {
 		return
 	}
-	
+
 	// Use a transaction to abort the migration if something fails
 	tx, err := db.BeginTx(context.TODO(), nil)
 	if err != nil {
@@ -90,8 +89,7 @@ func migrateFromLegacy() {
 	// Stage 2: Migrate the admin account
 	CreateUser("admin", viper.GetString("security.admin"), tx)
 
-	err = tx.Commit()
-	if err != nil {
+	if err = tx.Commit(); err != nil {
 		log.Fatalf("Migration failed: unable to commit migration transaction: %s", err)
 	}
 
@@ -115,8 +113,7 @@ func migrateConfig(key string, tx *sql.Tx) {
 	}
 	
 	stmt := tx.Stmt(prepare("insert into config values (?, ?)"))
-	_, err := stmt.Exec(key, value)
-	if err != nil {
+	if _, err := stmt.Exec(key, value); err != nil {
 		log.Fatalf("Migration failed for key %s: insert failed: %s", err)
 	}
 	
@@ -135,9 +132,7 @@ func GetString(key string, def string) string {
 	defer stmt.Close()
 
 	row := stmt.QueryRow(key)
-	err := row.Scan(&value)
-
-	if err != nil {
+	if err := row.Scan(&value); err != nil {
 		Set(key, def)
 		return GetString(key, def)
 	}
@@ -149,16 +144,14 @@ func Set(key string, value interface{}) {
 	stmt := prepare("delete from config where Key = ?")
 	defer stmt.Close()
 
-	_, err := stmt.Exec(key)
-	if err != nil {
+	if _, err := stmt.Exec(key); err != nil {
 		log.Fatalf("Unable to set value for %s: %s", key, err)
 	}
 
 	insert := prepare("insert into config values (?, ?)")
 	defer insert.Close()
 
-	ret, insErr := insert.Exec(key, value)
-	if insErr != nil {
-		log.Fatalf("Unable to set value for %s: error '%s', ret '%s'", key, err, ret)
+	if ret, insErr := insert.Exec(key, value); insErr != nil {
+		log.Fatalf("Unable to set value for %s: error '%s', ret '%s'", key, insErr, ret)
 	}
 }
