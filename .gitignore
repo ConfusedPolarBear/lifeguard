@@ -17,7 +17,7 @@
 # Built binary and configuration
 /browser
 lifeguard
-config.ini
+config/config.db
 lifeguard.tar.gz
 
 web/dist/

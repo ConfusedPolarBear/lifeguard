@@ -62,8 +62,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</b-table>
 		</b-card>
 
-		<pool-data :pool="pool" :section="'Datasets'" :fields="fields" @select="dataSelected" @click="dataClick"></pool-data>
-		<pool-data :pool="pool" :section="'Snapshots'" :fields="fields" @select="dataSelected" @click="dataClick"></pool-data>
+		<pool-data :pool="pool" :section="'Datasets'" :fields="fields" :snapshots="snapshots" @select="dataSelected" @click="dataClick"></pool-data>
 	</div>
 	</b-container>
 </div></template>
@@ -80,6 +79,7 @@ export default {
 			error: false,
 			poolName: this.$route.params.poolName,
 			pool: {},
+			snapshots: {},
 			fields: {
 				// TODO: Conditionally render the status column when at least one vdev member has data in that attribute
 				'Pool': [
@@ -127,8 +127,23 @@ export default {
 			} catch (e) {
 				console.error(e);
 				this.error = true;
+				return;
 			} finally {
 				this.loading = false;
+			}
+
+			// Associate snapshots with their datasets
+			this.snapshots[''] = [];
+			for (const current of this.pool.Datasets) {
+				let dataset = current.name.Value;
+				this.snapshots[dataset] = [];
+
+				for (const snapshot of this.pool.Snapshots) {
+					let snap = snapshot.name.Value;
+					if (snap.startsWith(dataset + '@')) {
+						this.snapshots[dataset].push(snap);
+					}
+				}
 			}
 
 			// The first dataset is always the pool itself, extract the used/available space for the progress bar

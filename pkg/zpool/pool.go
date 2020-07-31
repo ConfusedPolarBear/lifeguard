@@ -136,10 +136,6 @@ func GetProperties(name string, which string, filter string, props string) []map
 	props = Sanitize(props)
 	rawProps := strings.Split(props, ",")
 
-	if filter != "filesystem" && filter != "snapshot" && filter != "" {
-		log.Fatalf("Unknown filter type: %s", filter)
-	}
-
 	cmd := []string{ }
 	if (which == "zpool") {
 		cmd = append(cmd, cmdListPools...)
@@ -237,7 +233,7 @@ func ParsePool(name string, includeChildren bool) *structs.Pool {
 	 * from less than 50 ms on average to 260 ms.
 	 */
 	if includeChildren {
-		pool.Datasets   = GetProperties(name, "zfs", "filesystem", config.GetString("properties.dataset", structs.DefaultProperties["dataset"]))
+		pool.Datasets   = GetProperties(name, "zfs", "filesystem,volume", config.GetString("properties.dataset", structs.DefaultProperties["dataset"]))
 		pool.Snapshots  = GetProperties(name, "zfs", "snapshot", config.GetString("properties.snapshot", structs.DefaultProperties["snapshot"]))
 	}
 
