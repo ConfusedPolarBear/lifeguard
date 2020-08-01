@@ -4,6 +4,8 @@
 import * as ApiClient from '../apiClient.js';
 
 export default {
+	name: 'logout',
+	path: '/logout',
 	mounted() {
 		ApiClient.Logout()
 			.then(() => {

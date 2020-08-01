@@ -33,6 +33,8 @@ import * as ApiClient from '../apiClient.js';
 import * as TOTP from '../api/totp.js';
 
 export default {
+	name: 'home',
+	path: '/',
 	data() {
 		return {
 			auth:     false,

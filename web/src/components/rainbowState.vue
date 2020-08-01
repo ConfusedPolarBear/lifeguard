@@ -6,6 +6,7 @@
 
 <script>
 export default {
+	name: 'rainbow-state',
 	props: [ 'state' ],
 	computed: {
 		color: function() {

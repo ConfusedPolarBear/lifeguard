@@ -26,6 +26,7 @@ import * as ApiClient from '../apiClient.js';
 
 export default {
 	name: 'pools',
+	path: '/pools',
 	data() {
 		return {
 			error: false,

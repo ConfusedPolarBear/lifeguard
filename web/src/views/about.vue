@@ -24,6 +24,7 @@ import copy from 'copy-to-clipboard';
 
 export default {
 	name: 'about',
+	path: '/about',
 	data() {
 		return {
 			bundle: '',

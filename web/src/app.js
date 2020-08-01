@@ -12,14 +12,20 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 
-// TODO: automatically load all components from this directory
 import app from './components/app.vue';
-import rainbowState from './components/rainbowState.vue';
-import pools from './components/pools.vue';
-import poolCard from './components/poolCard.vue';
-import poolData from './components/poolData.vue';
-import webHeader from './components/webHeader.vue';
-import fileBrowser from './components/fileBrowser.vue';
+Vue.component('app', app);
+
+const requireComponent = require.context(
+	'./components',
+	false,
+	/^.*\.vue$/
+);
+
+const requireViews = require.context(
+	'./views',
+	false,
+	/^.*\.vue$/
+);
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -30,13 +36,17 @@ Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
-Vue.component('app', app);
-Vue.component('rainbow-state', rainbowState);
-Vue.component('pools', pools);
-Vue.component('pool-card', poolCard);
-Vue.component('pool-data', poolData);
-Vue.component('web-header', webHeader);
-Vue.component('file-browser', fileBrowser);
+requireComponent.keys().forEach(filename => {
+	const config = requireComponent(filename);
+	const name = config.default.name;
+
+	if (filename === './app.vue') {
+		return;
+	}
+
+	Vue.component(name, config.default || config);
+	console.debug('successfully registered component ' + name + ' from ' + filename);
+});
 
 Vue.filter('prettyPrint', function(value, name) {
 	var numbers  = [ 'avail', 'free', 'quota', 'refer', 'size', 'used', 'usedds', 'usedsnap' ];
@@ -67,40 +77,16 @@ Vue.filter('prettyPrint', function(value, name) {
 	return value;
 });
 
-const routes = [
-	{
-		path: '/',
-		component: require('./components/home.vue').default
-	},
-	{
-		path: '/about',
-		component: require('./components/about.vue').default
-	},
-	{
-		path: '/pools',
-		component: require('./components/pools.vue').default
-	},
-	{
-		path: '/pool/:poolName',
-		component: require('./components/poolInfo.vue').default
-	},
-	{
-		path: '/data',
-		component: require('./components/data.vue').default
-	},
-	{
-		path: '/logs',
-		component: require('./components/logs.vue').default
-	},
-	{
-		path: '/profile',
-		component: require('./components/profile.vue').default
-	},
-	{
-		path: '/logout',
-		component: require('./components/logout.vue').default
-	}
-];
+let routes = [];
+
+requireViews.keys().forEach(filename => {
+	const config = requireViews(filename);
+
+	routes.push({
+		path: config.default.path,
+		component: config.default
+	});
+});
 
 const router = new VueRouter({
 	routes

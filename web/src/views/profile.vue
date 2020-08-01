@@ -25,6 +25,7 @@ import * as TOTP from '../api/totp.js';
 
 export default {
 	name: 'profile',
+	path: '/profile',
 	data() {
 		return {
 			totp: {

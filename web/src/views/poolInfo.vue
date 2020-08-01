@@ -72,7 +72,8 @@ import * as ApiClient from '../apiClient.js';
 import * as PoolApi from '../api/pool.js';
 
 export default {
-	name: 'poolInfo',
+	name: 'pool',
+	path: '/pool/:poolName',
 	data() {
 		return {
 			loading: true,

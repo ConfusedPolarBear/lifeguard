@@ -33,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 export default {
-	name: 'poolData',
+	name: 'pool-data',
 	props: [ 'pool', 'section', 'fields', 'snapshots' ],
 	data() {
 		return {

@@ -13,8 +13,8 @@
 
 <script>
 export default {
+	name: 'pool-card',
 	props: ['pool', 'clickable'],
-	
 	methods: {
 		color: function(state) {
 			let colors = {
@@ -27,7 +27,6 @@ export default {
 			return colors[state];
 		}
 	},
-
 	computed: {
 		scanVariant: function() {
 			return this.pool.ScanPaused ? 'warning' : '';

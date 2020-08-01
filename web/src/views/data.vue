@@ -12,8 +12,8 @@
 				</b-card>
 			</b-col>
 			<b-col md="8">
-						<b-card header="Sunburst">
-								<sunburst style="height: 500px; margin-bottom: -1em" :data="data">
+				<b-card header="Sunburst">
+					<sunburst style="height: 500px; margin-bottom: -1em" :data="data">
 						<breadcrumbTrail style="padding-top: 1em" slot="legend" slot-scope="{ nodes, colorGetter, width }" :current="nodes.mouseOver" :root="nodes.root" :colorGetter="colorGetter" :from="nodes.zoomed" :width="width" />
 				
 						<template slot-scope="{ on, actions }">
@@ -21,8 +21,8 @@
 							<zoomOnClick v-bind="{ on, actions }"/>
 						</template>
 
-								</sunburst>
-						</b-card>
+						</sunburst>
+				</b-card>
 			</b-col>
 		</b-row>
 	</b-container>
@@ -41,6 +41,8 @@ import 'vue-d3-sunburst/dist/vue-d3-sunburst.css';
 import * as ApiClient from '../apiClient.js';
 
 export default {
+	name: 'zfsSunburst',
+	path: '/data',
 	components: {
 		breadcrumbTrail,
 		highlightOnHover,

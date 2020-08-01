@@ -10,6 +10,7 @@ import * as ApiClient from '../apiClient.js';
 
 export default {
 	name: 'logs',
+	path: '/logs',
 	data() {
 		return {
 			notifications: []

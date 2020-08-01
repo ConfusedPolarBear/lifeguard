@@ -17,6 +17,7 @@
 import * as ApiClient from '../apiClient.js';
 
 export default {
+	name: 'web-header',
 	data() {
 		return {
 			auth:    false,

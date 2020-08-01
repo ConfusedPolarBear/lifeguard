@@ -29,6 +29,7 @@ browser:
 	mv cmd/browser/browser ./
 
 web-prod:
+	npm audit
 	npm run prod
 
 web:
