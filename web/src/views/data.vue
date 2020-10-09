@@ -7,7 +7,7 @@
 			<b-col md="4">
 				<b-card header="Options">
 					<b-form-group label="Dataset" label-for="dataset-select">
-						<b-form-select id="dataset-select" v-model="selected" :options="pools"></b-form-select>
+						<b-form-select id="dataset-select" v-model="selected" :options="datasets"></b-form-select>
 					</b-form-group>
 				</b-card>
 			</b-col>
@@ -54,6 +54,7 @@ export default {
 		return {
 			selected: '',
 			pools: [],
+			datasets: [],
 			options: [
 				{ value: 'a', text: 'This is First option' },
 				{ value: 'b', text: 'Selected Option' }
@@ -92,14 +93,21 @@ export default {
 	methods: {
 		refresh: async function() {
 			try {
-				let pools = await ApiClient.GetPools();
-				pools.forEach(pool => {
-					this.pools.push(pool.Name);
-				});
+				this.pools = await ApiClient.GetPools();
+				for (let i = 0; i < this.pools.length; i++) {
+					this.pools[i] = await ApiClient.GetPool(this.pools[i].Name);
+				}
 			} catch (e) {
 				console.error(e);
 				this.error = true;
 			}
+
+			this.pools.forEach(pool => {
+				pool.Datasets.forEach(dataset => {
+					console.info(dataset)
+					this.datasets.push(dataset.name.Value);
+				})
+			})
 		}
 	},
 	mounted() {
