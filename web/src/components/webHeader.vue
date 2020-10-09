@@ -7,9 +7,11 @@
 			<b-nav-item to="/logs">Logs</b-nav-item>
 			<b-nav-item to="/profile">Profile</b-nav-item>
 			<b-nav-item to="/about">About</b-nav-item>
-			<b-nav-item to="/logout">Logout</b-nav-item>
 		</b-navbar-nav>
-		<b-nav-text class="ml-auto" v-if="this.auth">Version: <code>{{ version }} {{ commit }}</code></b-nav-text>
+		<b-navbar-nav v-if="this.auth" class="ml-auto">
+			<b-nav-item to="/logout">Logout</b-nav-item>
+			<b-nav-text><code>{{ version }} {{ commit }}</code></b-nav-text>
+		</b-navbar-nav>
 	</b-navbar>
 </template>
 
