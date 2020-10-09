@@ -10,7 +10,7 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**To reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -23,8 +23,8 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**System information**
- - OS name and version: [e.g. Debian 10 LTS]
- - ZFS version: [e.g. zfs-0.8.4-1]
- - Browser: [e.g. Firefox 78]
- - Installation method: [ compiled from source, tagged release, etc. ]
+**Support bundle**
+
+**Server logs**
+
+**Browser logs**
