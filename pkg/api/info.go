@@ -6,6 +6,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ConfusedPolarBear/lifeguard/pkg/zpool"
 	"github.com/ConfusedPolarBear/lifeguard/pkg/config"
@@ -49,10 +50,11 @@ func supportHandler(w http.ResponseWriter, r *http.Request) {
 	lsb := zpool.MustExec([]string { "/usr/bin/lsb_release", "-d"})
 	kernel := zpool.MustExec([]string { "/bin/uname", "-r"})
 
-	lsb = lsb[:len(lsb) - 1]
+	lsb = strings.ReplaceAll(lsb, "\n", "")
+	lsb = strings.ReplaceAll(lsb, "\t", "")
+	lsb = strings.ReplaceAll(lsb, ":", ": ")
 
 	response := fmt.Sprintf(`Lifeguard information:
-	Username: %s
 	Browser info: %s
 	Build: %s
 	
@@ -60,7 +62,11 @@ ZFS information:
 	ZFS version: %s
 	LSB %s
 	Kernel: %s`,
-	username, userAgent, buildInfo, zfsVersion, lsb, kernel)
+		userAgent,
+		buildInfo,
+		zfsVersion,
+		lsb,
+		kernel)
 
 	w.Write([]byte(response))
 }

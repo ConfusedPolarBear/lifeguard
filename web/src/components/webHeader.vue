@@ -10,7 +10,7 @@
 		</b-navbar-nav>
 		<b-navbar-nav v-if="this.auth" class="ml-auto">
 			<b-nav-item to="/logout">Logout</b-nav-item>
-			<b-nav-text><code>{{ version }} {{ commit }}</code></b-nav-text>
+			<b-nav-text><code style="margin-left:1em">{{ version }} {{ commit }}</code></b-nav-text>
 		</b-navbar-nav>
 	</b-navbar>
 </template>
