@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	<file-browser v-if="browse['show']" :hmac="browse['hmac']" :key="browse['key']"></file-browser>
 
-	<div :class="{ hide: loading }">
+	<div :class="{ hide: loading }" :data-name="poolName">
 		<br>
 		<b-breadcrumb>
 			<b-breadcrumb-item href="/#/pools">Pools</b-breadcrumb-item>
@@ -43,15 +43,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</b-progress>
 
 			<br>
-			<b-button-toolbar>
-				<b-button-group :data-name="poolName">
-					<b-button @click="scrub">{{ poolState.scrub }}</b-button>
-					<b-button @click="trim">Trim</b-button>
-					<b-button @click="iostat">iostat</b-button>
-				</b-button-group>
-			</b-button-toolbar>
-
-			<br>
+			
+			<b-form-group>
+				<b-button @click="scrub">{{ poolState.scrub }}</b-button>
+				<b-button @click="trim">Trim</b-button>
+				<b-button @click="iostat">iostat</b-button>
+			</b-form-group>
+			
 			<b-table outlined hover :fields="fields['Pool']" :items="pool.Containers">
 				<template v-slot:cell(name)="data">
 					<div v-bind:style="{ 'margin-left': data.item.Level + 'rem' }">{{ data.item.Name }}</div>
