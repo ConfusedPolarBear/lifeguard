@@ -1,8 +1,7 @@
 <template><div>
-    <b-modal id="modalBrowser" centered size="xl">
         <p>Current path: <code>{{ path }}</code></p>
 
-        <b-table :items="contents" :fields="fields">
+        <b-table hover :items="contents" :fields="fields">
             <template v-slot:cell(name)="data">
                 <span class="material-icons">{{ typeToIcon(data.item.Type) }}</span>
 
@@ -18,7 +17,6 @@
                 {{ data.item.Size | prettyPrint('size') }}
             </template>
         </b-table>
-    </b-modal>
 </div></template>
 
 <script>

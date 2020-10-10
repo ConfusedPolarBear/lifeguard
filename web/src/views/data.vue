@@ -7,7 +7,7 @@
 			<b-col md="4">
 				<b-card header="Options">
 					<b-form-group label="Dataset" label-for="dataset-select">
-						<b-form-select id="dataset-select" v-model="selected" :options="datasets"></b-form-select>
+						<b-form-select id="dataset-select" @change="onDatasetSelect()" v-model="selected" :options="datasets"></b-form-select>
 					</b-form-group>
 				</b-card>
 			</b-col>
@@ -25,6 +25,13 @@
 				</b-card>
 			</b-col>
 		</b-row>
+
+		<br>
+
+		<b-card header="Browse">
+			<file-browser :hmac="browse['hmac']" :key="browse['key']"></file-browser>
+		</b-card>
+
 	</b-container>
 </div></template>
 
@@ -55,10 +62,6 @@ export default {
 			selected: '',
 			pools: [],
 			datasets: [],
-			options: [
-				{ value: 'a', text: 'This is First option' },
-				{ value: 'b', text: 'Selected Option' }
-			],
 			data:  {
 				'name': 'flare',
 				'children': [
@@ -87,10 +90,38 @@ export default {
 						]
 					}
 				]
+			},
+			browse: {
+				'hmac': '',
+				'key': 0
 			}
 		};
 	},
 	methods: {
+		nameToHMAC: function(name) {
+
+			for (let i = 0; i < this.pools.length; i++) {
+
+				let dataset = this.pools[i].Datasets.find((x) => {
+					return x.name.Value === name;
+				});
+
+				if (dataset === undefined) {
+					dataset = this.pools[i].Snapshots.find((x) => {
+						return x.name.Value === name;
+					});
+				}
+
+				if (dataset != undefined) {
+					return dataset.name.HMAC;
+				}
+			}
+			throw Error('Could not find dataset or snapshot with name ' + name);
+		},
+		onDatasetSelect() {
+			this.browse['hmac'] = this.nameToHMAC(this.selected);
+			this.browse['key'] += 1;
+		},
 		refresh: async function() {
 			try {
 				this.pools = await ApiClient.GetPools();
@@ -104,7 +135,6 @@ export default {
 
 			this.pools.forEach(pool => {
 				pool.Datasets.forEach(dataset => {
-					console.info(dataset)
 					this.datasets.push(dataset.name.Value);
 				})
 			})

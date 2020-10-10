@@ -23,8 +23,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</b-modal>
 	</div>
 
-	<file-browser v-if="browse['show']" :hmac="browse['hmac']" :key="browse['key']"></file-browser>
-
 	<div :class="{ hide: loading }" :data-name="poolName">
 		<br>
 		<b-breadcrumb>
@@ -103,11 +101,6 @@ export default {
 				'used': 0,
 				'max': 0,
 				'scrub': 'Scrub'
-			},
-			browse: {
-				'show': false,
-				'hmac': '',
-				'key': 0
 			}
 		};
 	},
@@ -180,11 +173,6 @@ export default {
 				let error = true;
 
 				switch (event) {
-				case 'browse':
-					this.browse['key'] += 1;		// force re-render
-					this.browse['show'] = true;
-					this.browse['hmac'] = hmac;
-					break;
 
 				case 'mount':
 					res = await ApiClient.Mount(hmac);
